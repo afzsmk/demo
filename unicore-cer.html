@@ -1,0 +1,2381 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ТехноХаб | Конфигуратор панелей Уникор Керамик — ЗСМК</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<style>
+:root {
+    --bg-app: #0b1120;
+    --bg-sidebar: #0f172a;
+    --bg-sidebar-header: #090e1a;
+    --bg-card: #1e293b;
+    --bg-card-hover: #263349;
+    --bg-input: #0b1324;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --border: #1e293b;
+    --border-strong: #334155;
+    --accent: #3b82f6;
+    --accent-hover: #2563eb;
+    --accent-cyan: #0ea5e9;
+    --accent-soft: rgba(59, 130, 246, 0.14);
+    --hud-bg: rgba(15, 23, 42, 0.88);
+    --hud-border: rgba(148, 163, 184, 0.2);
+    --success: #10b981;
+    --success-soft: rgba(16, 185, 129, 0.15);
+    --success-text: #34d399;
+    --warning: #f59e0b;
+    --warning-soft: rgba(245, 158, 11, 0.16);
+    --warning-text: #fbbf24;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+    width: 100%; height: 100%; overflow: hidden;
+    font-family: var(--font-sans);
+    background: var(--bg-app);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+}
+body { display: flex; }
+
+/* ================= SIDEBAR ================= */
+.sidebar {
+    width: 425px; min-width: 425px; max-width: 425px;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border-strong);
+    display: flex; flex-direction: column;
+    height: 100vh; z-index: 20;
+    box-shadow: 6px 0 24px rgba(0, 0, 0, 0.45);
+}
+.sidebar-header {
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--border-strong);
+    background: var(--bg-sidebar-header);
+    display: flex; justify-content: space-between; align-items: center;
+    flex-shrink: 0;
+}
+.brand-wrap { display: flex; align-items: center; gap: 10px; }
+.brand-badge {
+    width: 34px; height: 34px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-cyan) 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono); font-weight: 800; font-size: 13px; color: #fff;
+    box-shadow: 0 0 14px rgba(59, 130, 246, 0.45);
+}
+.sidebar-header h1 { font-size: 14.5px; font-weight: 700; letter-spacing: 0.2px; color: #fff; }
+.sidebar-header p {
+    font-size: 10px; color: var(--accent-cyan); font-family: var(--font-mono);
+    letter-spacing: 0.4px; text-transform: uppercase; margin-top: 2px;
+}
+.version-pill {
+    font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+    color: var(--text-secondary); background: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    padding: 3px 7px; border-radius: 6px;
+}
+
+.controls-container {
+    padding: 14px 14px 20px;
+    overflow-y: auto; flex: 1; min-height: 0;
+    display: flex; flex-direction: column; gap: 12px;
+}
+.controls-container::-webkit-scrollbar { width: 5px; }
+.controls-container::-webkit-scrollbar-track { background: transparent; }
+.controls-container::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+
+.th-block {
+    background: rgba(30, 41, 59, 0.45);
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    padding: 12px;
+}
+.th-block-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px;
+}
+.th-block-title {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.6px; color: var(--text-secondary);
+    display: flex; align-items: center; gap: 6px;
+}
+
+/* EDGE CLOSING CARDS */
+.edge-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;
+    margin-bottom: 9px;
+}
+.edge-btn {
+    padding: 8px 9px; background: var(--bg-input);
+    border: 1px solid var(--border-strong); border-radius: 7px;
+    cursor: pointer; text-align: left; transition: all 0.15s ease;
+    color: var(--text-secondary);
+}
+.edge-btn:hover { border-color: var(--accent); color: #fff; }
+.edge-btn.active {
+    background: rgba(14, 165, 233, 0.16);
+    border-color: var(--accent-cyan);
+    color: #fff;
+    box-shadow: inset 0 0 0 1px rgba(14, 165, 233, 0.35);
+}
+.edge-btn-title { font-size: 11px; font-weight: 700; display: block; color: var(--text-primary); }
+.edge-btn.active .edge-btn-title { color: var(--accent-cyan); }
+.edge-btn-sub { font-size: 9.5px; color: var(--text-muted); display: block; margin-top: 2px; }
+
+.cutaway-toggle {
+    width: 100%; padding: 8px 10px;
+    border-radius: 7px; border: 1px dashed rgba(14, 165, 233, 0.5);
+    background: rgba(14, 165, 233, 0.08);
+    color: #e2e8f0; font-size: 11px; font-weight: 600;
+    cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+    transition: all 0.16s ease; margin-bottom: 8px;
+}
+.cutaway-toggle:hover { background: rgba(14, 165, 233, 0.15); border-color: var(--accent-cyan); }
+.cutaway-toggle.active {
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.25), rgba(37, 99, 235, 0.25));
+    border: 1px solid var(--accent-cyan); color: #fff;
+    box-shadow: 0 0 12px rgba(14, 165, 233, 0.25);
+}
+.cutaway-pill {
+    font-family: var(--font-mono); font-size: 9.5px; padding: 2px 6px;
+    border-radius: 4px; background: rgba(15, 23, 42, 0.7); color: var(--text-secondary);
+}
+.cutaway-toggle.active .cutaway-pill { background: var(--accent-cyan); color: #090e1a; font-weight: 700; }
+
+/* HUMAN-FRIENDLY EDGE SUMMARY CARD */
+.edge-info-card {
+    background: rgba(15, 23, 42, 0.78);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-left: 3px solid var(--accent-cyan);
+    border-radius: 8px;
+    padding: 9px 10px;
+    font-size: 10.5px;
+    display: flex; flex-direction: column; gap: 5px;
+}
+.edge-info-header {
+    font-weight: 700; color: #fff; font-size: 11px;
+    display: flex; justify-content: space-between; align-items: center;
+    padding-bottom: 4px; border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+}
+.edge-info-row {
+    display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;
+    line-height: 1.3;
+}
+.edge-info-label { color: var(--text-secondary); flex-shrink: 0; }
+.edge-info-val { color: var(--text-primary); font-weight: 600; text-align: right; }
+.edge-info-val.good { color: var(--success-text); }
+.edge-info-val.warn { color: var(--warning-text); }
+
+/* CONTROLS */
+.quick-sizes { display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; }
+.quick-size-chip {
+    flex: 1; font-family: var(--font-mono); font-size: 9.5px; font-weight: 600;
+    padding: 4px 5px; border-radius: 5px;
+    background: var(--bg-input); color: var(--text-secondary);
+    border: 1px solid var(--border-strong); cursor: pointer;
+    text-align: center; transition: all 0.15s;
+}
+.quick-size-chip:hover { border-color: var(--accent); color: #fff; }
+.quick-size-chip.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-cyan); }
+
+.control-group { margin-bottom: 9px; }
+.control-group:last-child { margin-bottom: 0; }
+.control-label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 6px; }
+label { font-size: 11px; font-weight: 500; color: var(--text-secondary); }
+.indicator {
+    font-family: var(--font-mono); font-size: 10.5px; font-weight: 600;
+    color: var(--accent-cyan); background: rgba(14, 165, 233, 0.12);
+    border: 1px solid rgba(14, 165, 233, 0.25);
+    padding: 1px 6px; border-radius: 4px; white-space: nowrap;
+}
+.input-row { display: flex; gap: 8px; align-items: center; }
+input[type="range"] {
+    flex: 1; height: 5px; background: var(--bg-input);
+    border: 1px solid var(--border-strong); border-radius: 3px;
+    outline: none; -webkit-appearance: none; min-width: 0;
+}
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
+    background: var(--accent-cyan); border: 2px solid #fff;
+    cursor: pointer; box-shadow: 0 0 6px rgba(14, 165, 233, 0.6);
+}
+.num-input {
+    width: 68px; min-width: 68px; height: 26px;
+    padding: 2px 6px; border: 1px solid var(--border-strong);
+    border-radius: 6px; font-family: var(--font-mono); font-size: 11px; text-align: right;
+    color: var(--text-primary); background: var(--bg-input); font-weight: 600;
+}
+
+/* LAYER TABS */
+.layer-tabs {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px;
+    background: var(--bg-input); padding: 4px;
+    border-radius: 8px; border: 1px solid var(--border-strong);
+    margin-bottom: 10px;
+}
+.layer-tab {
+    padding: 6px 5px; border-radius: 6px; border: 1px solid transparent;
+    background: transparent; cursor: pointer; text-align: center;
+    transition: all 0.18s ease;
+}
+.layer-tab:hover { background: rgba(255,255,255,0.04); }
+.layer-tab.active {
+    background: var(--bg-card);
+    border-color: var(--accent);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+.layer-tab-title { font-size: 10.5px; font-weight: 700; color: var(--text-primary); display: block; }
+.layer-tab.active .layer-tab-title { color: var(--accent-cyan); }
+.layer-tab-sub {
+    font-family: var(--font-mono); font-size: 9px; color: var(--text-muted);
+    display: block; margin-top: 2px;
+}
+
+.layer-pane { display: none; }
+.layer-pane.active { display: block; }
+
+.decor-swatch-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;
+    max-height: 185px; overflow-y: auto; padding-right: 3px;
+}
+.decor-swatch-grid::-webkit-scrollbar { width: 4px; }
+.decor-swatch-grid::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 2px; }
+.decor-card {
+    background: var(--bg-input); border: 1px solid var(--border-strong);
+    border-radius: 6px; padding: 5px; cursor: pointer;
+    display: flex; align-items: center; gap: 7px;
+    transition: all 0.14s;
+}
+.decor-card:hover { border-color: var(--accent); }
+.decor-card.active {
+    border-color: var(--accent-cyan);
+    background: rgba(14, 165, 233, 0.14);
+    box-shadow: inset 0 0 0 1px var(--accent-cyan);
+}
+.decor-preview {
+    height: 26px; width: 38px; border-radius: 4px; flex-shrink: 0;
+    border: 1px solid rgba(255,255,255,0.15);
+    background-size: cover; background-position: center;
+}
+.decor-card-name {
+    font-size: 10px; font-weight: 600; color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.btn-group { display: flex; gap: 4px; width: 100%; }
+.btn-group button {
+    flex: 1; height: 28px; background: var(--bg-input);
+    border: 1px solid var(--border-strong); border-radius: 6px;
+    font-size: 10.5px; font-weight: 600; color: var(--text-secondary);
+    cursor: pointer; transition: all 0.16s ease; padding: 0 6px;
+}
+.btn-group button:hover { border-color: var(--accent); color: #fff; }
+.btn-group button.active {
+    background: var(--accent); border-color: var(--accent-cyan); color: #fff;
+}
+.btn-group button:disabled {
+    opacity: 0.4; cursor: not-allowed;
+}
+
+.info-note {
+    font-size: 10px; color: var(--text-secondary);
+    background: rgba(15, 23, 42, 0.75); padding: 6px 8px;
+    border-radius: 5px; margin-top: 6px; line-height: 1.35;
+    border-left: 2px solid var(--accent-cyan);
+}
+
+.checkbox-row {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 10.5px; color: var(--text-secondary);
+    margin-top: 6px; cursor: pointer;
+}
+.checkbox-row input { cursor: pointer; }
+
+/* ================= 3D STAGE & HUDS ================= */
+.stage-container {
+    flex: 1; position: relative; height: 100vh;
+    min-width: 0; min-height: 0;
+    background: #0b1120; overflow: hidden;
+    display: flex; flex-direction: column;
+}
+#canvas3d { display: block; flex: 1; width: 100%; cursor: grab; }
+#canvas3d:active { cursor: grabbing; }
+
+.layer-callouts-svg {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 14;
+}
+.layer-callouts-container {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 15;
+}
+.layer-hud-badge {
+    position: absolute;
+    display: flex; flex-direction: column; gap: 2px;
+    background: rgba(15, 23, 42, 0.92);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(14, 165, 233, 0.45);
+    border-left: 3.5px solid #0ea5e9;
+    border-radius: 6px;
+    padding: 5px 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+    pointer-events: none;
+    width: 265px; height: 42px;
+    justify-content: center; overflow: hidden;
+}
+.layer-hud-badge .badge-title {
+    font-size: 10.5px; font-weight: 700; color: #f8fafc;
+    display: flex; align-items: center; gap: 6px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.layer-hud-badge .badge-desc {
+    font-size: 9.5px; color: #94a3b8; font-family: var(--font-mono);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* TELEMETRY HUD */
+.hud-panel {
+    position: absolute; top: 20px; right: 20px;
+    background: var(--hud-bg);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--hud-border);
+    border-radius: 12px; padding: 12px 14px;
+    width: 300px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    pointer-events: auto; z-index: 10;
+}
+.hud-title {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    color: var(--accent-cyan); letter-spacing: 0.7px;
+    margin-bottom: 8px; padding-bottom: 6px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+    display: flex; justify-content: space-between; align-items: center;
+}
+.hud-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 5px; font-size: 11px; gap: 8px;
+}
+.hud-row.divider { padding-top: 6px; border-top: 1px solid rgba(148, 163, 184, 0.14); margin-top: 5px; }
+.hud-label { color: var(--text-secondary); font-weight: 500; }
+.hud-value {
+    font-family: var(--font-mono); color: var(--text-primary);
+    font-weight: 600; font-size: 11px; text-align: right;
+}
+.hud-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 2px 7px; border-radius: 4px;
+    font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+}
+.hud-badge.green { background: var(--success-soft); color: var(--success-text); border: 1px solid rgba(16, 185, 129, 0.3); }
+
+/* DEMO BANNER */
+.demo-banner {
+    position: absolute; top: 20px; left: 20px;
+    background: rgba(15, 23, 42, 0.9);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(14, 165, 233, 0.45);
+    border-radius: 12px; padding: 12px 16px;
+    width: 430px; max-width: calc(100% - 340px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+    z-index: 12;
+}
+.demo-badge-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.demo-live-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+    color: var(--accent-cyan); text-transform: uppercase;
+}
+.demo-live-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: #ef4444;
+    box-shadow: 0 0 8px #ef4444; animation: pulseDot 1.2s infinite;
+}
+@keyframes pulseDot { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+.demo-step-counter { font-family: var(--font-mono); font-size: 10px; color: var(--text-secondary); }
+.demo-title { font-size: 14px; font-weight: 800; color: #fff; margin-bottom: 3px; }
+.demo-subtitle { font-size: 11px; color: #cbd5e1; line-height: 1.35; }
+.demo-controls { display: flex; align-items: center; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
+.demo-act-btn {
+    border: 1px solid rgba(148,163,184,.28); color: #e2e8f0;
+    background: rgba(30,41,59,.84); cursor: pointer; border-radius: 6px;
+    padding: 4px 8px; font: 700 10px var(--font-mono);
+}
+.demo-act-btn.active { background: var(--accent); border-color: var(--accent-cyan); color: #fff; }
+.demo-progress-track {
+    width: 100%; height: 3px; background: rgba(255,255,255,0.12);
+    border-radius: 2px; margin-top: 8px; overflow: hidden;
+}
+.demo-progress-bar {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-cyan));
+}
+
+/* BOTTOM TOOLBAR */
+.bottom-toolbar {
+    position: absolute; bottom: 16px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 23, 42, 0.86);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 14px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
+    padding: 7px 12px;
+    display: flex; align-items: center; gap: 7px;
+    flex-wrap: wrap; justify-content: center;
+    max-width: calc(100% - 28px);
+    z-index: 15;
+}
+.view-buttons, .light-hud { display: flex; gap: 4px; }
+.dock-btn {
+    background: rgba(30, 41, 59, 0.75);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    color: #cbd5e1; padding: 6px 10px; font-size: 11px; font-weight: 600;
+    border-radius: 9px; cursor: pointer; transition: all 0.16s;
+    display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+}
+.dock-btn:hover { color: #fff; border-color: var(--accent-cyan); background: rgba(59, 130, 246, 0.18); }
+.dock-btn.active {
+    background: var(--accent); color: #fff; border-color: var(--accent-cyan);
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+}
+.dock-btn.demo-btn {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(245, 158, 11, 0.2));
+    border-color: rgba(245, 158, 11, 0.45); color: #fde68a;
+}
+.dock-btn.demo-btn.active {
+    background: linear-gradient(135deg, #ef4444, #f59e0b);
+    color: #fff; border-color: #fff;
+}
+.toolbar-divider { width: 1px; height: 20px; background: rgba(148, 163, 184, 0.2); margin: 0 2px; }
+
+.explode-control {
+    display: flex; align-items: center; gap: 6px;
+    color: #cbd5e1; font-size: 11px; font-weight: 600;
+    background: rgba(30, 41, 59, 0.65);
+    padding: 4px 10px; border-radius: 9px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+}
+.explode-control input[type="range"] { width: 80px; height: 4px; }
+.explode-control .explode-val {
+    font-family: var(--font-mono); min-width: 30px; text-align: right; color: var(--accent-cyan); font-size: 10.5px;
+}
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="brand-wrap">
+            <div class="brand-badge">УК</div>
+            <div>
+                <h1>Уникор Керамик</h1>
+                <p>TECHNOHUB • ЗСМК ИНЖИНИРИНГ</p>
+            </div>
+        </div>
+        <span class="version-pill">3D Конфигуратор</span>
+    </div>
+
+    <div class="controls-container">
+
+        <!-- 1. СПОСОБ ЗАКРЫТИЯ ТОРЦОВ (УПРАВЛЯЕТ СХЕМОЙ ПАНЕЛИ) -->
+        <div class="th-block">
+            <div class="th-block-header">
+                <span class="th-block-title">🛡 Способ закрытия торцов</span>
+                <span class="indicator" id="edgeBadge">Схема 2</span>
+            </div>
+
+            <div class="edge-grid" id="edgeModeGroup">
+                <button type="button" class="edge-btn" data-mode="sealant">
+                    <span class="edge-btn-title">1. Герметик</span>
+                    <span class="edge-btn-sub">Puraflex 9270 заподлицо</span>
+                </button>
+                <button type="button" class="edge-btn active" data-mode="framing">
+                    <span class="edge-btn-title">2. Обрамление</span>
+                    <span class="edge-btn-sub">Профиль в цвет + саморезы</span>
+                </button>
+                <button type="button" class="edge-btn" data-mode="double_bend">
+                    <span class="edge-btn-title">3. Двойной подгиб</span>
+                    <span class="edge-btn-sub">Нахлёст на тыл + заклёпки</span>
+                </button>
+                <button type="button" class="edge-btn" data-mode="open">
+                    <span class="edge-btn-title">4. Открытый торец</span>
+                    <span class="edge-btn-sub">Без закрытия кромок</span>
+                </button>
+            </div>
+
+            <!-- ПЕРЕКЛЮЧАТЕЛЬ РАЗРЕЗА (КАК НА ФОТО ОБРАЗЦА) -->
+            <button type="button" class="cutaway-toggle active" id="cutawayToggle">
+                <span>🔍 Разрез: открыть передний торец (как на фото)</span>
+                <span class="cutaway-pill" id="cutawayStatus">ВКЛ</span>
+            </button>
+
+            <!-- НАСТРОЙКА УГЛА ПОДГИБА ДЛЯ СХЕМЫ 3 -->
+            <div class="control-group hidden" id="bendAngleGroup" style="margin-top:4px; margin-bottom:8px;">
+                <div class="control-label-row">
+                    <label>Угол подгиба кромки (90°…45°):</label>
+                    <span class="indicator" id="bendAngleVal">60° (Скрытый)</span>
+                </div>
+                <input type="range" id="bendAngleSlider" min="45" max="90" step="1" value="60" style="width:100%; margin-bottom:6px;">
+                <div class="btn-group" id="bendAnglePresets">
+                    <button type="button" data-angle="90">90° Прямой</button>
+                    <button type="button" data-angle="60" class="active">60° Стандарт ЧПУ</button>
+                    <button type="button" data-angle="45">45° Макс. скос</button>
+                </div>
+            </div>
+
+            <!-- ОПЦИЯ ЦВЕТА РАМКИ ДЛЯ СХЕМЫ 2 -->
+            <label class="checkbox-row" id="frameColorOption">
+                <input type="checkbox" id="contrastFrameCheck">
+                <span>Показать тёмную тестовую рамку (по умолчанию — в цвет камня)</span>
+            </label>
+
+            <!-- ПОНЯТНАЯ КАРТОЧКА ОСОБЕННОСТЕЙ ТОРЦА -->
+            <div class="edge-info-card" id="edgeInfoCard" style="margin-top:8px;"></div>
+        </div>
+
+        <!-- 2. СОСТАВ ПАНЕЛИ (ПИРОГ ПОДСТРАИВАЕТСЯ ПОД СХЕМУ 1, 2 ИЛИ 3) -->
+        <div class="th-block">
+            <div class="th-block-header">
+                <span class="th-block-title">🥪 Состав сотовой панели</span>
+            </div>
+
+            <div class="layer-tabs" id="layerTabs">
+                <button type="button" class="layer-tab active" data-tab="face">
+                    <span class="layer-tab-title">1. Керамогранит</span>
+                    <span class="layer-tab-sub" id="tabSummaryFace">3.5 мм • Монотон</span>
+                </button>
+                <button type="button" class="layer-tab" data-tab="core">
+                    <span class="layer-tab-title">2. Соты Al</span>
+                    <span class="layer-tab-sub" id="tabSummaryCore">18 мм • Ø 9.5</span>
+                </button>
+                <button type="button" class="layer-tab" data-tab="back">
+                    <span class="layer-tab-title">3. Тыльный лист</span>
+                    <span class="layer-tab-sub" id="tabSummaryBack">Оцинк. 0.7 мм</span>
+                </button>
+            </div>
+
+            <!-- ВКЛАДКА 1: КЕРАМОГРАНИТ -->
+            <div class="layer-pane active" id="pane-face">
+                <div class="control-group">
+                    <div class="control-label-row">
+                        <label>Декор керамогранита:</label>
+                        <span class="indicator" id="faceDecorLabel">Серый монотон</span>
+                    </div>
+                    <div class="decor-swatch-grid" id="faceDecorGrid"></div>
+                </div>
+                <div class="control-group" style="margin-top:8px;">
+                    <div class="control-label-row">
+                        <label>Толщина керамогранита:</label>
+                        <span class="indicator" id="faceThickVal">3.5 мм</span>
+                    </div>
+                    <input type="range" id="faceThickness" min="3.0" max="6.0" step="0.5" value="3.5" style="width:100%;">
+                </div>
+            </div>
+
+            <!-- ВКЛАДКА 2: СОТОВЫЙ ЗАПОЛНИТЕЛЬ -->
+            <div class="layer-pane" id="pane-core">
+                <div class="control-group">
+                    <div class="control-label-row">
+                        <label>Высота сотового ядра:</label>
+                        <span class="indicator" id="coreThickVal">18 мм</span>
+                    </div>
+                    <input type="range" id="coreThickness" min="6" max="50" step="1" value="18" style="width:100%;">
+                </div>
+                <div class="control-group">
+                    <label style="display:block; margin-bottom:5px;">Размер ячейки соты (реальный масштаб):</label>
+                    <div class="btn-group" id="cellSizeGroup">
+                        <button type="button" data-value="6.3">Ø 6.3 мм</button>
+                        <button type="button" data-value="9.5" class="active">Ø 9.5 мм</button>
+                        <button type="button" data-value="12.7">Ø 12.7 мм</button>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="control-label-row">
+                        <label>Толщина алюминиевой фольги:</label>
+                        <span class="indicator" id="foilThickVal">0.05 мм</span>
+                    </div>
+                    <input type="range" id="foilThickness" min="0.04" max="0.08" step="0.01" value="0.05" style="width:100%;">
+                </div>
+                <div class="info-note">Ячейка Ø 6.3 мм увеличивает площадь контакта клея; Ø 9.5 мм — базовый стандарт.</div>
+            </div>
+
+            <!-- ВКЛАДКА 3: ТЫЛЬНЫЙ ЛИСТ -->
+            <div class="layer-pane" id="pane-back">
+                <div class="control-group">
+                    <label style="display:block; margin-bottom:6px;">Материал тыльного листа:</label>
+                    <div class="btn-group" id="backSheetGroup">
+                        <button type="button" data-back="galvanized_07" class="active">Оцинковка 0.7 мм</button>
+                        <button type="button" data-back="aluminum_10">Алюминий 1.0 мм</button>
+                    </div>
+                </div>
+                <div class="info-note" id="backSheetNote">
+                    В схемах 1 и 2 по умолчанию применяется оцинкованная сталь 0.7 мм (близкий к керамограниту коэффициент теплового расширения).
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. ГАБАРИТЫ ПАНЕЛИ -->
+        <div class="th-block">
+            <div class="th-block-header">
+                <span class="th-block-title">📐 Габариты панели (до 3000×1000)</span>
+                <span class="indicator" id="aspectRatioBadge">1.3 : 1</span>
+            </div>
+            <div class="quick-sizes" id="quickSizesBar">
+                <button type="button" class="quick-size-chip active" data-l="400" data-w="300">Образец 400×300</button>
+                <button type="button" class="quick-size-chip" data-l="600" data-w="600">600×600</button>
+                <button type="button" class="quick-size-chip" data-l="1200" data-w="600">1200×600</button>
+                <button type="button" class="quick-size-chip" data-l="3000" data-w="1000">Макс. 3000×1000</button>
+            </div>
+            <div class="control-group">
+                <div class="control-label-row">
+                    <label>Длина панели (L):</label>
+                    <span class="indicator" id="lengthVal">400 мм</span>
+                </div>
+                <div class="input-row">
+                    <input type="range" id="lengthSlider" min="200" max="3000" step="10" value="400">
+                    <input type="number" id="lengthInput" class="num-input" min="200" max="3000" value="400">
+                </div>
+            </div>
+            <div class="control-group">
+                <div class="control-label-row">
+                    <label>Ширина панели (W):</label>
+                    <span class="indicator" id="widthVal">300 мм</span>
+                </div>
+                <div class="input-row">
+                    <input type="range" id="widthSlider" min="200" max="1000" step="10" value="300">
+                    <input type="number" id="widthInput" class="num-input" min="200" max="1200" value="300">
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ================= 3D STAGE ================= -->
+<div class="stage-container">
+
+    <!-- DEMO BANNER -->
+    <div class="demo-banner hidden" id="demoBanner">
+        <div class="demo-badge-row">
+            <span class="demo-live-pill"><span class="demo-live-dot"></span> ДЕМОНСТРАЦИЯ «УНИКОР КЕРАМИК»</span>
+            <span class="demo-step-counter" id="demoStepCounter">ШАГ 1 / 4</span>
+        </div>
+        <div class="demo-title" id="demoTitle">Анатомия панели Уникор Керамик</div>
+        <div class="demo-subtitle" id="demoSubtitle">Разнесение слоев: керамогранит, сотовое ядро и тыльный лист</div>
+        <div class="demo-controls">
+            <button type="button" class="demo-act-btn active" data-demo-act="0">1. Взрыв-схема</button>
+            <button type="button" class="demo-act-btn" data-demo-act="1">2. Герметик</button>
+            <button type="button" class="demo-act-btn" data-demo-act="2">3. Обрамление (саморезы)</button>
+            <button type="button" class="demo-act-btn" data-demo-act="3">4. Двойной подгиб (заклёпки)</button>
+        </div>
+        <div class="demo-progress-track">
+            <div class="demo-progress-bar" id="demoProgressBar"></div>
+        </div>
+    </div>
+
+    <!-- TELEMETRY HUD -->
+    <div class="hud-panel" id="calcHud">
+        <div class="hud-title">
+            <span>Характеристики панели</span>
+            <span id="hudConfigId" style="font-family:var(--font-mono); font-size:9.5px; color:var(--text-secondary);"></span>
+        </div>
+        <div class="hud-row">
+            <span class="hud-label">Общая толщина:</span>
+            <span class="hud-value" id="hudTotalThick">22.20 мм</span>
+        </div>
+        <div class="hud-row">
+            <span class="hud-label">Площадь панели:</span>
+            <span class="hud-value" id="hudArea">0.120 м²</span>
+        </div>
+        <div class="hud-row">
+            <span class="hud-label">Вес (панель / 1 м²):</span>
+            <span class="hud-value" id="hudWeight">1.92 / 16.0 кг</span>
+        </div>
+        <div class="hud-row divider">
+            <span class="hud-label">Исполнение торца:</span>
+            <span class="hud-value" id="hudEdgeName" style="color:var(--accent-cyan);">Обрамление в цвет</span>
+        </div>
+        <div class="hud-row">
+            <span class="hud-label">Этапов склейки:</span>
+            <span class="hud-value" id="hudGlueStages">1 этап (стандарт)</span>
+        </div>
+        <div class="hud-row">
+            <span class="hud-label">Пожарный класс:</span>
+            <span class="hud-value"><span class="hud-badge green">КМ0 / НГ</span></span>
+        </div>
+        <div class="hud-row">
+            <span class="hud-label">Прогиб (ветер 60 кгс/м²):</span>
+            <span class="hud-value" id="hudDeflection">0.08 мм (Норма)</span>
+        </div>
+    </div>
+
+    <!-- FLOATING BOTTOM TOOLBAR -->
+    <div class="bottom-toolbar">
+        <button class="dock-btn demo-btn" id="demoModeBtn" title="Короткая демонстрация 3 вариантов торцов и взрыв-схемы">
+            <span>🎬 Демо-обзор</span>
+        </button>
+        <button class="dock-btn" id="rotateToggle" title="Пауза / Вращение">▶</button>
+
+        <div class="toolbar-divider"></div>
+
+        <div class="view-buttons">
+            <button class="dock-btn active view-btn" data-view="3d45" title="Классический вид 45°">📐 3D 45°</button>
+            <button class="dock-btn view-btn" data-view="edge" title="Крупный план торца и разреза">🔍 Торец вблизи</button>
+            <button class="dock-btn view-btn" data-view="back" title="Вид с тыльной стороны (стык 45°, саморезы / заклёпки)">🔄 Тыл (45° и крепёж)</button>
+            <button class="dock-btn view-btn" data-view="top" title="Вид сверху на керамогранит">⬆ Лицо</button>
+        </div>
+
+        <div class="toolbar-divider"></div>
+
+        <div class="explode-control">
+            <span>💥 Взрыв слоев:</span>
+            <input type="range" id="explodeSlider" min="0" max="100" step="1" value="0">
+            <span class="explode-val" id="explodeVal">0%</span>
+        </div>
+
+        <button class="dock-btn" id="animateAssembly" title="Плавная анимация сборки панели">▶ Сборка</button>
+
+        <div class="toolbar-divider"></div>
+
+        <div class="light-hud">
+            <button class="dock-btn light-btn active" data-scene="d65" title="Студийный свет D65">🔬 Студия</button>
+            <button class="dock-btn light-btn" data-scene="daylight" title="Уличный дневной свет">☀ Фасад День</button>
+            <button class="dock-btn light-btn" data-scene="grazing" title="Боковой свет для проверки теневого шва и рельефа">🌅 Теневой шов</button>
+        </div>
+    </div>
+
+    <!-- CALLOUTS OVERLAY -->
+    <svg id="layerCalloutsSvg" class="layer-callouts-svg"></svg>
+    <div id="layerCalloutsContainer" class="layer-callouts-container"></div>
+
+    <canvas id="canvas3d"></canvas>
+</div>
+
+<script>
+// ============================================================
+// 1. БАЗА ДЕКОРОВ КЕРАМОГРАНИТА И СПРАВОЧНИК ТОРЦОВ (ОТЧЁТ №166)
+// ============================================================
+const ceramicDecorPalette = [
+    {
+        id: "cer_grey_mono",
+        name: "Серый монотон (Фото)",
+        type: "ceramic_mono_photo",
+        baseColor: "#9ea3a8",
+        lineColor: "#7e848a",
+        secColor: "#b4b9be",
+        roughness: 0.52
+    },
+    {
+        id: "cer_graphite",
+        name: "Графит Монотон",
+        type: "ceramic_mono_photo",
+        baseColor: "#3a3f47",
+        lineColor: "#252930",
+        secColor: "#4c525c",
+        roughness: 0.56
+    },
+    {
+        id: "cer_carrara",
+        name: "Мрамор Каррара",
+        type: "marble",
+        baseColor: "#f1f4f7",
+        lineColor: "#848d99",
+        secColor: "#d9dfe6",
+        roughness: 0.18
+    },
+    {
+        id: "cer_calacatta",
+        name: "Калакатта Оро",
+        type: "marble",
+        baseColor: "#f7f5ef",
+        lineColor: "#9c8259",
+        secColor: "#d4c8b4",
+        roughness: 0.16
+    },
+    {
+        id: "cer_nero",
+        name: "Неро Марквина",
+        type: "marble",
+        baseColor: "#1b2028",
+        lineColor: "#e2e8f0",
+        secColor: "#323b4a",
+        roughness: 0.15
+    },
+    {
+        id: "cer_travertine",
+        name: "Травертин Римский",
+        type: "travertine",
+        baseColor: "#dfd3bc",
+        lineColor: "#9b8967",
+        secColor: "#cbbca0",
+        roughness: 0.58
+    },
+    {
+        id: "cer_mansur",
+        name: "Гранит Мансуровский",
+        type: "granite",
+        baseColor: "#a8aeb5",
+        lineColor: "#3e4347",
+        secColor: "#dce1e6",
+        roughness: 0.42
+    },
+    {
+        id: "cer_basalt",
+        name: "Базальт Тёмный",
+        type: "slate",
+        baseColor: "#44484f",
+        lineColor: "#24272b",
+        secColor: "#5a5f68",
+        roughness: 0.65
+    }
+];
+
+const edgeMethodInfo = {
+    sealant: {
+        badge: "Схема 1 • Герметик",
+        title: "Герметик Puraflex 9270 со шлифовкой в плоскость",
+        look: "Матовый монолитный торец без рамок и крепежа",
+        LookClass: "good",
+        fastening: "Адгезия полиуретанового герметика по периметру",
+        trimming: "Только на заводе до нанесения герметика",
+        trimClass: "warn",
+        speed: "Долго (сушка ~2 суток + ручная шлифовка УШМ)",
+        speedClass: "warn",
+        bestFor: "Штучные или радиусные детали, где нельзя поставить профиль"
+    },
+    framing: {
+        badge: "Схема 2 • Обрамление",
+        title: "Алюминиевый профиль в цвет камня + стык 45° и саморезы",
+        look: "Кант в цвет керамогранита заподлицо с камнем",
+        LookClass: "good",
+        fastening: "Стык рамки под 45° на тыльной стороне + саморезы",
+        trimming: "Да — можно подрезать гидроабразивом и надеть профиль",
+        trimClass: "good",
+        speed: "Высокая («сухая» сборка без ожидания сушки)",
+        speedClass: "good",
+        bestFor: "Основная серийная программа, фасады и входные группы"
+    },
+    double_bend: {
+        badge: "Схема 3 • Подгиб ЧПУ",
+        title: "Двойной подгиб сотовой панели НА тыльный лист + заклёпки",
+        look: "Премиум: при скосе 60°–45° торец уходит в теневой шов",
+        LookClass: "good",
+        fastening: "Нахлёст кромки НА тыльный лист со стыком 45° + заклёпки по углам",
+        trimming: "Нет — фрезеруется на ЧПУ AluRanger строго в размер",
+        trimClass: "warn",
+        speed: "Средняя (2 этапа склейки: кассета Al 1.0, затем камень)",
+        speedClass: "warn",
+        bestFor: "Парадные фасады премиум-сегмента со скрытым торцом"
+    },
+    open: {
+        badge: "Схема 4 • Открытый",
+        title: "Открытый торец без защитного закрытия",
+        look: "Видны соты и клеевой слой в разрезе",
+        LookClass: "warn",
+        fastening: "Отсутствует",
+        trimming: "Свободный раскрой гидроабразивом",
+        trimClass: "good",
+        speed: "Максимальная (1 этап склейки без доработки кромок)",
+        speedClass: "good",
+        bestFor: "Сухие интерьеры, скрытые узлы или демонстрационные образцы"
+    }
+};
+
+// ============================================================
+// 2. ГЕНЕРАТОР PBR-ТЕКСТУР КЕРАМОГРАНИТА
+// ============================================================
+const pbrTextureCache = new Map();
+
+class NoiseGenerator {
+    constructor(seed = 1337) {
+        this.p = new Uint8Array(512);
+        let s = seed;
+        const perm = new Uint8Array(256);
+        for (let i = 0; i < 256; i++) perm[i] = i;
+        for (let i = 255; i > 0; i--) {
+            s = (s * 1664525 + 1013904223) >>> 0;
+            const j = s % (i + 1);
+            const tmp = perm[i]; perm[i] = perm[j]; perm[j] = tmp;
+        }
+        for (let i = 0; i < 512; i++) this.p[i] = perm[i & 255];
+    }
+    fade(t) { return t * t * t * (t * (t * 6 - 15) + 10); }
+    lerp(t, a, b) { return a + t * (b - a); }
+    grad(hash, x, y) {
+        const h = hash & 7;
+        const u = h < 4 ? x : y;
+        const v = h < 4 ? y : x;
+        return ((h & 1) ? -u : u) + ((h & 2) ? -2.0 * v : 2.0 * v);
+    }
+    noise(x, y) {
+        const X = Math.floor(x) & 255;
+        const Y = Math.floor(y) & 255;
+        x -= Math.floor(x); y -= Math.floor(y);
+        const u = this.fade(x), v = this.fade(y);
+        const A = this.p[X] + Y, B = this.p[X + 1] + Y;
+        return this.lerp(v,
+            this.lerp(u, this.grad(this.p[A], x, y), this.grad(this.p[B], x - 1, y)),
+            this.lerp(u, this.grad(this.p[A + 1], x, y - 1), this.grad(this.p[B + 1], x - 1, y - 1))
+        ) * 0.5 + 0.5;
+    }
+    fbm(x, y, octaves = 5, lacunarity = 2.0, gain = 0.5) {
+        let total = 0, frequency = 1, amplitude = 1, maxValue = 0;
+        for (let i = 0; i < octaves; i++) {
+            total += this.noise(x * frequency, y * frequency) * amplitude;
+            maxValue += amplitude;
+            amplitude *= gain;
+            frequency *= lacunarity;
+        }
+        return total / maxValue;
+    }
+}
+
+function hexToRgb(hex) {
+    let c = hex.replace('#', '');
+    return [parseInt(c.substr(0,2),16), parseInt(c.substr(2,2),16), parseInt(c.substr(4,2),16)];
+}
+function mixRgb(c1, c2, t) {
+    const k = Math.max(0, Math.min(1, t));
+    return [
+        c1[0] + (c2[0] - c1[0]) * k,
+        c1[1] + (c2[1] - c1[1]) * k,
+        c1[2] + (c2[2] - c1[2]) * k
+    ];
+}
+
+function getOrCreatePBRDecor(decor) {
+    if (pbrTextureCache.has(decor.id)) return pbrTextureCache.get(decor.id);
+
+    const size = 512;
+    const diffCanvas = document.createElement('canvas'); diffCanvas.width = size; diffCanvas.height = size;
+    const bumpCanvas = document.createElement('canvas'); bumpCanvas.width = size; bumpCanvas.height = size;
+    const roughCanvas = document.createElement('canvas'); roughCanvas.width = size; roughCanvas.height = size;
+
+    const dCtx = diffCanvas.getContext('2d');
+    const bCtx = bumpCanvas.getContext('2d');
+    const rCtx = roughCanvas.getContext('2d');
+
+    const dImg = dCtx.createImageData(size, size);
+    const bImg = bCtx.createImageData(size, size);
+    const rImg = rCtx.createImageData(size, size);
+
+    let seed = 0;
+    for (let i = 0; i < decor.id.length; i++) seed = (seed * 31 + decor.id.charCodeAt(i)) >>> 0;
+    const ng = new NoiseGenerator(seed || 42);
+
+    const baseRgb = hexToRgb(decor.baseColor);
+    const lineRgb = hexToRgb(decor.lineColor);
+    const secRgb  = hexToRgb(decor.secColor);
+    const baseRough = Math.round((decor.roughness || 0.5) * 255);
+
+    for (let y = 0; y < size; y++) {
+        for (let x = 0; x < size; x++) {
+            const idx = (y * size + x) * 4;
+            const nx = x / size, ny = y / size;
+            let col = baseRgb;
+            let bumpVal = 128;
+            let roughVal = baseRough;
+
+            if (decor.type === 'ceramic_mono_photo') {
+                const cloud = ng.fbm(nx * 3.8, ny * 3.8, 5);
+                const medium = ng.fbm(nx * 14.0 + 3.1, ny * 14.0 + 1.7, 4);
+                const fine = ng.noise(nx * 65.0, ny * 65.0);
+                col = mixRgb(baseRgb, secRgb, cloud * 0.55);
+                col = mixRgb(col, lineRgb, Math.max(0, (medium - 0.45) * 0.55));
+                col = mixRgb(col, secRgb, (fine - 0.5) * 0.14);
+                bumpVal = Math.round(128 + (medium - 0.5) * 28 + (fine - 0.5) * 18);
+                roughVal = Math.round(baseRough + (cloud - 0.5) * 24);
+            } else if (decor.type === 'marble') {
+                const qx = ng.fbm(nx * 2.8, ny * 2.8, 4);
+                const qy = ng.fbm(nx * 2.8 + 5.2, ny * 2.8 + 1.3, 4);
+                const f = ng.fbm(nx * 3.5 + 3.8 * qx, ny * 3.5 + 3.8 * qy, 5);
+                const veinMain = Math.pow(Math.max(0, 1.0 - Math.abs(f - 0.52) * 14.0), 2.2);
+                const cloud = ng.fbm(nx * 2.0, ny * 2.0, 3);
+                col = mixRgb(baseRgb, secRgb, cloud * 0.45);
+                col = mixRgb(col, lineRgb, Math.min(1, veinMain) * 0.9);
+                bumpVal = Math.round(128 - veinMain * 20);
+                roughVal = Math.round(baseRough + veinMain * 40);
+            } else if (decor.type === 'travertine') {
+                const layer = ng.fbm(nx * 2.2, ny * 10.0, 4);
+                const pores = ng.fbm(nx * 28.0, ny * 8.0, 4);
+                col = mixRgb(baseRgb, secRgb, layer);
+                if (pores < 0.35) {
+                    const depth = (0.35 - pores) / 0.35;
+                    col = mixRgb(col, lineRgb, depth * 0.8);
+                    bumpVal = Math.round(128 - depth * 85);
+                }
+            } else if (decor.type === 'granite') {
+                const c1 = ng.fbm(nx * 32, ny * 32, 4);
+                const c2 = ng.fbm(nx * 64 + 11, ny * 64 + 7, 3);
+                if (c1 < 0.36) col = lineRgb;
+                else if (c1 > 0.64) col = secRgb;
+                else col = mixRgb(baseRgb, secRgb, (c2 - 0.3) * 0.8);
+                bumpVal = Math.round(128 + (c1 - 0.5) * 40);
+            } else {
+                const macro = ng.fbm(nx * 4.0, ny * 4.0, 5);
+                const micro = ng.fbm(nx * 24, ny * 24, 4);
+                col = mixRgb(baseRgb, secRgb, macro * 0.7);
+                col = mixRgb(col, lineRgb, (1.0 - micro) * 0.35);
+                bumpVal = Math.round(128 + (micro - 0.5) * 50);
+            }
+
+            dImg.data[idx] = col[0]; dImg.data[idx+1] = col[1]; dImg.data[idx+2] = col[2]; dImg.data[idx+3] = 255;
+            bImg.data[idx] = bImg.data[idx+1] = bImg.data[idx+2] = Math.max(0, Math.min(255, bumpVal)); bImg.data[idx+3] = 255;
+            rImg.data[idx] = rImg.data[idx+1] = rImg.data[idx+2] = Math.max(15, Math.min(250, roughVal)); rImg.data[idx+3] = 255;
+        }
+    }
+
+    dCtx.putImageData(dImg, 0, 0);
+    bCtx.putImageData(bImg, 0, 0);
+    rCtx.putImageData(rImg, 0, 0);
+
+    const map = new THREE.CanvasTexture(diffCanvas);
+    map.wrapS = map.wrapT = THREE.MirroredRepeatWrapping;
+    map.encoding = THREE.sRGBEncoding;
+
+    const bumpMap = new THREE.CanvasTexture(bumpCanvas);
+    bumpMap.wrapS = bumpMap.wrapT = THREE.MirroredRepeatWrapping;
+
+    const roughnessMap = new THREE.CanvasTexture(roughCanvas);
+    roughnessMap.wrapS = roughnessMap.wrapT = THREE.MirroredRepeatWrapping;
+
+    const thumbCanvas = document.createElement('canvas'); thumbCanvas.width = 96; thumbCanvas.height = 48;
+    thumbCanvas.getContext('2d').drawImage(diffCanvas, 0, 0, 96, 48);
+    const previewDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.85);
+
+    const result = { map, bumpMap, roughnessMap, previewDataUrl };
+    pbrTextureCache.set(decor.id, result);
+    return result;
+}
+
+// ============================================================
+// 3. ИНИЦИАЛИЗАЦИЯ СЦЕНЫ THREE.JS И ОСВЕЩЕНИЯ
+// ============================================================
+const canvas3d = document.getElementById('canvas3d');
+const renderer = new THREE.WebGLRenderer({ canvas: canvas3d, antialias: true, powerPreference: "high-performance" });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(36, 1, 1, 10000);
+camera.position.set(380, 290, 420);
+
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.minDistance = 90;
+controls.maxDistance = 2600;
+
+function createNeutralReflectionDome(contrast = 1.0, warmth = 0.0) {
+    const sceneEnv = new THREE.Scene();
+    const c = document.createElement('canvas'); c.width = 1024; c.height = 512;
+    const ctx = c.getContext('2d');
+    const grad = ctx.createLinearGradient(0, 0, 0, 512);
+    grad.addColorStop(0, `rgb(${Math.round(14 + warmth*4)},${Math.round(18 + warmth*2)},26)`);
+    grad.addColorStop(0.5, `rgb(20,26,34)`);
+    grad.addColorStop(1, `rgb(8,10,14)`);
+    ctx.fillStyle = grad; ctx.fillRect(0, 0, 1024, 512);
+
+    function addLightStrip(x, y, w, h, alpha) {
+        const rad = Math.max(w, h) * 0.75;
+        const sGrad = ctx.createRadialGradient(x + w/2, y + h/2, 0, x + w/2, y + h/2, rad);
+        sGrad.addColorStop(0, `rgba(255,255,255,${alpha})`);
+        sGrad.addColorStop(0.45, `rgba(255,255,255,${alpha * 0.4})`);
+        sGrad.addColorStop(1, `rgba(255,255,255,0)`);
+        ctx.fillStyle = sGrad;
+        ctx.fillRect(x - w*0.2, y - h*0.2, w*1.4, h*1.4);
+    }
+    addLightStrip(380, 25, 260, 130, 0.9);
+    addLightStrip(90, 70, 240, 180, 0.85);
+    addLightStrip(690, 80, 240, 160, 0.75);
+    addLightStrip(420, 340, 260, 110, 0.6);
+
+    const tex = new THREE.CanvasTexture(c);
+    tex.mapping = THREE.EquirectangularReflectionMapping;
+    tex.encoding = THREE.sRGBEncoding;
+    sceneEnv.background = tex;
+    return sceneEnv;
+}
+
+function createViewportBackdrop(topHex, midHex, botHex) {
+    const c = document.createElement('canvas'); c.width = 512; c.height = 512;
+    const ctx = c.getContext('2d');
+    const g = ctx.createLinearGradient(0, 0, 0, 512);
+    g.addColorStop(0, topHex); g.addColorStop(0.55, midHex); g.addColorStop(1, botHex);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, 512, 512);
+    const tex = new THREE.CanvasTexture(c);
+    tex.encoding = THREE.sRGBEncoding;
+    return tex;
+}
+
+const pmremGenerator = new THREE.PMREMGenerator(renderer);
+pmremGenerator.compileEquirectangularShader();
+
+const envMaps = {
+    d65:      pmremGenerator.fromScene(createNeutralReflectionDome(0.5, 0.0), 0.035).texture,
+    daylight: pmremGenerator.fromScene(createNeutralReflectionDome(0.85, 0.15), 0.03).texture,
+    grazing:  pmremGenerator.fromScene(createNeutralReflectionDome(1.2, 0.35), 0.025).texture
+};
+const stageBackdrops = {
+    d65:      createViewportBackdrop('#1e293b', '#131c2e', '#0b1120'),
+    daylight: createViewportBackdrop('#1e3a5f', '#17253b', '#0f172a'),
+    grazing:  createViewportBackdrop('#231f2e', '#161824', '#0b0e17')
+};
+
+const lightsD65 = new THREE.Group();
+lightsD65.add(new THREE.HemisphereLight('#f8fafc', '#475569', 0.55));
+const d65Key = new THREE.DirectionalLight('#ffffff', 0.85); d65Key.position.set(280, 520, 380);
+const d65Fill = new THREE.DirectionalLight('#e2e8f0', 0.48); d65Fill.position.set(-320, -260, -280);
+const d65Front = new THREE.DirectionalLight('#f1f5f9', 0.38); d65Front.position.set(120, 60, 480);
+lightsD65.add(d65Key, d65Fill, d65Front);
+
+const lightsDaylight = new THREE.Group();
+lightsDaylight.add(new THREE.HemisphereLight('#dbeafe', '#334155', 0.5));
+const sunLight = new THREE.DirectionalLight('#fffaf0', 1.1); sunLight.position.set(420, 600, 380);
+const dayUnder = new THREE.DirectionalLight('#cbd5e1', 0.48); dayUnder.position.set(-300, -320, -250);
+lightsDaylight.add(sunLight, dayUnder);
+
+const lightsGrazing = new THREE.Group();
+lightsGrazing.add(new THREE.HemisphereLight('#e2e8f0', '#1e293b', 0.38));
+const grazeMain = new THREE.DirectionalLight('#ffeedb', 1.35); grazeMain.position.set(620, 95, 260);
+const grazeRim = new THREE.DirectionalLight('#93c5fd', 0.55); grazeRim.position.set(-450, -180, -350);
+lightsGrazing.add(grazeMain, grazeRim);
+
+function setLightingScenario(mode) {
+    scene.remove(lightsD65, lightsDaylight, lightsGrazing);
+    scene.add(mode === 'daylight' ? lightsDaylight : (mode === 'grazing' ? lightsGrazing : lightsD65));
+    scene.environment = envMaps[mode] || envMaps.d65;
+    scene.background = stageBackdrops[mode] || stageBackdrops.d65;
+    document.querySelectorAll('.light-btn').forEach(b => b.classList.toggle('active', b.dataset.scene === mode));
+}
+
+// ============================================================
+// 4. МАТЕРИАЛЫ И СОСТОЯНИЕ КОНФИГУРАТОРА
+// ============================================================
+let state = {
+    faceDecor: "cer_grey_mono",
+    faceThickness: 3.5,
+    coreThickness: 18,
+    cellSize: "9.5",
+    foilThickness: 0.05,
+    backType: "galvanized_07", // "galvanized_07" | "aluminum_10"
+    edgeMode: "framing",       // "sealant" | "framing" | "double_bend" | "open"
+    bendAngle: 60,             // 45..90 degrees
+    cutaway: true,             // открыть передний торец (+Z) для показа в разрезе
+    contrastFrame: false,      // тёмная рамка или в цвет керамогранита
+    length: 400,
+    width: 300
+};
+
+const panelGroup = new THREE.Group();
+scene.add(panelGroup);
+
+let faceMesh = null;
+let glueTopMesh = null; // 2-й этап склейки для Схемы 3
+let midAluMesh = null;  // Верхний лист сотовой кассеты Al 1.0 мм (для Схемы 3)
+let glue1Mesh = null;
+let coreMesh = null;
+let glue2Mesh = null;
+let backMesh = null;
+let edgeGroup = null;
+
+const layerMaterials = {
+    ceramic: new THREE.MeshPhysicalMaterial({ side: THREE.DoubleSide }),
+    ceramicEdge: new THREE.MeshStandardMaterial({ roughness: 0.72, metalness: 0.0 }),
+    glue: new THREE.MeshStandardMaterial({ color: '#d9b36c', opacity: 0.72, transparent: true, roughness: 0.55 }),
+    core: new THREE.MeshStandardMaterial({ color: '#d8e0e8', metalness: 0.84, roughness: 0.26, side: THREE.DoubleSide }),
+    // Алюминиевый лист кассеты и его подогнутая кромка (шлифованный металл, как на фото тыльной стороны со заклепками)
+    aluSheet: new THREE.MeshPhysicalMaterial({
+        color: new THREE.Color('#c8d2dc').convertSRGBToLinear(),
+        metalness: 0.86, roughness: 0.26, clearcoat: 0.15, side: THREE.DoubleSide
+    }),
+    // Светлый грунтованный тыльный лист (виден в центре тыльной стороны на обоих фото)
+    primedBack: new THREE.MeshPhysicalMaterial({
+        color: new THREE.Color('#e6ebf0').convertSRGBToLinear(),
+        metalness: 0.10, roughness: 0.45, clearcoat: 0.12, side: THREE.DoubleSide
+    }),
+    sealant: new THREE.MeshStandardMaterial({
+        color: new THREE.Color('#22262c').convertSRGBToLinear(),
+        roughness: 0.82, metalness: 0.02
+    }),
+    framing: new THREE.MeshPhysicalMaterial({
+        metalness: 0.18, roughness: 0.36, clearcoat: 0.25, side: THREE.DoubleSide
+    }),
+    gasket: new THREE.MeshStandardMaterial({
+        color: new THREE.Color('#132530').convertSRGBToLinear(),
+        roughness: 0.9
+    }),
+    fastenerMetal: new THREE.MeshStandardMaterial({
+        color: new THREE.Color('#e2e8f0').convertSRGBToLinear(),
+        metalness: 0.92, roughness: 0.16
+    }),
+    fastenerDark: new THREE.MeshBasicMaterial({ color: '#1e293b' }),
+    miterLine: new THREE.LineBasicMaterial({ color: '#1e293b', linewidth: 2 })
+};
+
+let currentVisualWX = 300;
+let currentVisualLZ = 400;
+let currentConfigId = 'UK-' + Date.now().toString(36).toUpperCase().slice(-4);
+document.getElementById('hudConfigId').textContent = currentConfigId;
+
+function updateMaterials() {
+    const decor = ceramicDecorPalette.find(d => d.id === state.faceDecor) || ceramicDecorPalette[0];
+    const pbr = getOrCreatePBRDecor(decor);
+
+    layerMaterials.ceramic.color.set('#ffffff');
+    layerMaterials.ceramic.map = pbr.map;
+    layerMaterials.ceramic.bumpMap = pbr.bumpMap;
+    layerMaterials.ceramic.bumpScale = 0.16;
+    layerMaterials.ceramic.roughnessMap = pbr.roughnessMap;
+    layerMaterials.ceramic.roughness = decor.roughness;
+    layerMaterials.ceramic.metalness = 0.0;
+    layerMaterials.ceramic.clearcoat = decor.type === 'marble' ? 0.5 : 0.08;
+    layerMaterials.ceramic.clearcoatRoughness = 0.2;
+    layerMaterials.ceramic.envMapIntensity = 0.55;
+    layerMaterials.ceramic.needsUpdate = true;
+
+    layerMaterials.ceramicEdge.color.set(decor.baseColor).convertSRGBToLinear();
+
+    if (state.contrastFrame) {
+        layerMaterials.framing.map = null;
+        layerMaterials.framing.color.set('#222933').convertSRGBToLinear();
+        layerMaterials.framing.roughness = 0.25;
+        layerMaterials.framing.metalness = 0.25;
+        layerMaterials.framing.clearcoat = 0.5;
+    } else {
+        layerMaterials.framing.map = pbr.map;
+        layerMaterials.framing.color.set(decor.baseColor).convertSRGBToLinear();
+        layerMaterials.framing.roughness = 0.38;
+        layerMaterials.framing.metalness = 0.15;
+        layerMaterials.framing.clearcoat = 0.2;
+    }
+    layerMaterials.framing.needsUpdate = true;
+}
+
+// ============================================================
+// 5. ПОСТРОЕНИЕ 3D-МОДЕЛИ ПАНЕЛИ И 3 СХЕМ ЗАКРЫТИЯ ТОРЦОВ
+// ============================================================
+
+// Саморез с прессшайбой и крестовым шлицем PH2 (для Схемы 2 — Обрамление)
+function createScrewMesh() {
+    const screwGroup = new THREE.Group();
+    const washer = new THREE.Mesh(new THREE.CylinderGeometry(4.2, 4.2, 0.8, 16), layerMaterials.fastenerMetal);
+    washer.position.y = -0.4;
+    screwGroup.add(washer);
+    const head = new THREE.Mesh(new THREE.SphereGeometry(3.1, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2), layerMaterials.fastenerMetal);
+    head.rotation.x = Math.PI;
+    head.scale.y = 0.58;
+    head.position.y = -0.7;
+    screwGroup.add(head);
+    const slot1 = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.5, 0.65), layerMaterials.fastenerDark);
+    slot1.position.y = -2.35;
+    const slot2 = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.5, 3.6), layerMaterials.fastenerDark);
+    slot2.position.y = -2.35;
+    screwGroup.add(slot1, slot2);
+    return screwGroup;
+}
+
+// Вытяжная заклёпка с центральным сердечником (для Схемы 3 — Двойной подгиб, как на фото)
+function createRivetMesh() {
+    const rivetGroup = new THREE.Group();
+    // Широкий плоский буртик вытяжной заклёпки
+    const flange = new THREE.Mesh(new THREE.CylinderGeometry(3.8, 4.0, 0.9, 18), layerMaterials.fastenerMetal);
+    flange.position.y = -0.45;
+    rivetGroup.add(flange);
+    // Центральное отверстие с сердечником заклёпки
+    const mandrelHole = new THREE.Mesh(new THREE.CylinderGeometry(1.35, 1.35, 0.4, 14), layerMaterials.fastenerDark);
+    mandrelHole.position.y = -0.82;
+    rivetGroup.add(mandrelHole);
+    const mandrelPin = new THREE.Mesh(new THREE.CylinderGeometry(0.65, 0.65, 0.45, 10), layerMaterials.fastenerMetal);
+    mandrelPin.position.y = -0.85;
+    rivetGroup.add(mandrelPin);
+    return rivetGroup;
+}
+
+// Планка со стыковкой под 45 градусов по углам
+function createMiteredFlangeStrip(outerLen, flangeWidth, thickness, miterStart, miterEnd, material) {
+    const s = new THREE.Shape();
+    const halfL = outerLen / 2;
+    const cutStart = miterStart ? flangeWidth : 0;
+    const cutEnd = miterEnd ? flangeWidth : 0;
+
+    s.moveTo(-halfL, 0);
+    s.lineTo(halfL, 0);
+    s.lineTo(halfL - cutEnd, flangeWidth);
+    s.lineTo(-halfL + cutStart, flangeWidth);
+    s.closePath();
+
+    const geom = new THREE.ExtrudeGeometry(s, { depth: thickness, bevelEnabled: false });
+    geom.rotateX(Math.PI / 2);
+    return new THREE.Mesh(geom, material);
+}
+
+// Наклонная боковая грань сотовой панели (для Схемы 3 — угол от 90° до 45°)
+function createBeveledBendSide(outerLen, height, insetBottom, miterStart, miterEnd, material) {
+    const halfL = outerLen / 2;
+    const cutStart = miterStart ? insetBottom : 0;
+    const cutEnd = miterEnd ? insetBottom : 0;
+
+    const geom = new THREE.BufferGeometry();
+    const t = 1.0;
+    const v = [
+        -halfL,            height / 2,  0,
+         halfL,            height / 2,  0,
+         halfL - cutEnd,  -height / 2,  insetBottom,
+        -halfL + cutStart,-height / 2,  insetBottom,
+
+        -halfL,            height / 2,  t,
+         halfL,            height / 2,  t,
+         halfL - cutEnd,  -height / 2,  insetBottom + t,
+        -halfL + cutStart,-height / 2,  insetBottom + t
+    ];
+    const indices = [
+        0,1,2, 0,2,3,
+        4,6,5, 4,7,6,
+        0,4,5, 0,5,1,
+        3,2,6, 3,6,7,
+        0,3,7, 0,7,4,
+        1,5,6, 1,6,2
+    ];
+    geom.setAttribute('position', new THREE.Float32BufferAttribute(v, 3));
+    geom.setIndex(indices);
+    geom.computeVertexNormals();
+    return new THREE.Mesh(geom, material);
+}
+
+function rebuildPanelGeometry() {
+    while (panelGroup.children.length > 0) {
+        const obj = panelGroup.children[0];
+        if (obj.geometry) obj.geometry.dispose();
+        panelGroup.remove(obj);
+    }
+
+    const realWX = state.width;
+    const realLZ = state.length;
+    const MAX_STAGE_DIM = 460;
+    const maxReal = Math.max(realWX, realLZ);
+    const stageScale = maxReal > MAX_STAGE_DIM ? (MAX_STAGE_DIM / maxReal) : 1.0;
+
+    const wX = realWX * stageScale;
+    const lZ = realLZ * stageScale;
+    currentVisualWX = wX;
+    currentVisualLZ = lZ;
+
+    const ratio = (Math.max(realWX, realLZ) / Math.min(realWX, realLZ)).toFixed(1);
+    document.getElementById('aspectRatioBadge').textContent = `${ratio} : 1`;
+
+    const isDoubleBend = (state.edgeMode === 'double_bend');
+    const tFace = state.faceThickness;
+    const tMidAlu = isDoubleBend ? 1.0 : 0.0;
+    const tCore = state.coreThickness;
+    const tBack = state.backType === 'aluminum_10' ? 1.0 : 0.7;
+    const tGlue = 0.35;
+
+    // Расчет скоса для 3-й схемы (угол от 90° до 45°)
+    const angleRad = (state.bendAngle * Math.PI) / 180;
+    const bendH = tCore + tGlue * 2 + tBack;
+    const bevelInset = isDoubleBend ? (bendH / Math.tan(angleRad)) : 0;
+
+    // 1. ЛИЦЕВОЙ ЛИСТ КЕРАМОГРАНИТА
+    const ceramicMats = [
+        layerMaterials.ceramicEdge, layerMaterials.ceramicEdge,
+        layerMaterials.ceramic,     layerMaterials.ceramicEdge,
+        layerMaterials.ceramicEdge, layerMaterials.ceramicEdge
+    ];
+    faceMesh = new THREE.Mesh(new THREE.BoxGeometry(wX, tFace, lZ), ceramicMats);
+    faceMesh.castShadow = true; faceMesh.receiveShadow = true;
+    panelGroup.add(faceMesh);
+
+    // 2. ДОПОЛНИТЕЛЬНЫЙ ПРОМЕЖУТОЧНЫЙ ЛИСТ АЛЮМИНИЯ (ДЛЯ СХЕМЫ 3 — ДВОЙНОЙ ПОДГИБ)
+    if (isDoubleBend) {
+        glueTopMesh = new THREE.Mesh(new THREE.BoxGeometry(wX - 2, tGlue, lZ - 2), layerMaterials.glue);
+        midAluMesh = new THREE.Mesh(new THREE.BoxGeometry(wX, tMidAlu, lZ), layerMaterials.aluSheet);
+        midAluMesh.castShadow = true;
+        panelGroup.add(glueTopMesh, midAluMesh);
+    } else {
+        glueTopMesh = null;
+        midAluMesh = null;
+    }
+
+    // 3. КЛЕЕВЫЕ СЛОИ ЯДРА
+    const coreClearance = (state.edgeMode === 'sealant') ? 20 : (isDoubleBend ? bevelInset * 2 + 4 : 4);
+    const coreW = Math.max(40, wX - coreClearance);
+    const coreL = Math.max(40, lZ - (state.cutaway ? coreClearance / 2 : coreClearance));
+    const coreShiftZ = state.cutaway ? (coreClearance / 4) : 0;
+
+    glue1Mesh = new THREE.Mesh(new THREE.BoxGeometry(coreW, tGlue, coreL), layerMaterials.glue);
+    glue1Mesh.position.z = coreShiftZ;
+    glue2Mesh = new THREE.Mesh(new THREE.BoxGeometry(coreW, tGlue, coreL), layerMaterials.glue);
+    glue2Mesh.position.z = coreShiftZ;
+    panelGroup.add(glue1Mesh, glue2Mesh);
+
+    // 4. АЛЮМИНИЕВЫЙ СОТОВЫЙ ЗАПОЛНИТЕЛЬ (ЧЕСТНЫЙ МАСШТАБ ЯЧЕЕК 6.3 / 9.5 / 12.7 ММ)
+    const rawCellSize = parseFloat(state.cellSize);
+    const visualCellRadius = (rawCellSize / 2) * Math.max(stageScale, 0.48);
+    const hexGeom = new THREE.CylinderGeometry(visualCellRadius, visualCellRadius, tCore, 6, 1, true);
+    const colSpacing = visualCellRadius * Math.sqrt(3);
+    const rowSpacing = visualCellRadius * 1.5;
+    const cols = Math.floor(coreW / colSpacing) + 1;
+    const rows = Math.floor(coreL / rowSpacing) + 1;
+
+    coreMesh = new THREE.InstancedMesh(hexGeom, layerMaterials.core, cols * rows);
+    let instanceIdx = 0;
+    const dummy = new THREE.Object3D();
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            let xPos = (c * colSpacing) - (coreW / 2) + colSpacing * 0.5;
+            let zPos = (r * rowSpacing) - (coreL / 2) + rowSpacing * 0.5 + coreShiftZ;
+            if (r % 2 === 1) xPos += colSpacing / 2;
+            if (
+                Math.abs(xPos) <= (coreW / 2 - visualCellRadius * 0.65) &&
+                zPos >= (-lZ / 2 + (coreClearance / 2) + visualCellRadius * 0.5) &&
+                zPos <= (lZ / 2 - (state.cutaway ? visualCellRadius * 0.4 : (coreClearance / 2 + visualCellRadius * 0.5)))
+            ) {
+                dummy.position.set(xPos, 0, zPos);
+                dummy.updateMatrix();
+                coreMesh.setMatrixAt(instanceIdx++, dummy.matrix);
+            }
+        }
+    }
+    coreMesh.count = instanceIdx;
+    coreMesh.instanceMatrix.needsUpdate = true;
+    panelGroup.add(coreMesh);
+
+    // 5. ТЫЛЬНЫЙ ЛИСТ (В СХЕМЕ 3 КРОМКА ДВОЙНОГО ПОДГИБА ЗАХОДИТ СНАРУЖИ НА ТЫЛЬНЫЙ ЛИСТ)
+    const backW = isDoubleBend ? Math.max(40, wX - bevelInset * 2 - 2) : wX;
+    const backL = isDoubleBend ? Math.max(40, lZ - (state.cutaway ? (bevelInset + 1) : (bevelInset * 2 + 2))) : lZ;
+    const backShiftZ = (isDoubleBend && state.cutaway) ? ((bevelInset + 1) / 2) : 0;
+
+    backMesh = new THREE.Mesh(new THREE.BoxGeometry(backW, tBack, backL), layerMaterials.primedBack);
+    backMesh.position.z = backShiftZ;
+    backMesh.castShadow = true; backMesh.receiveShadow = true;
+    panelGroup.add(backMesh);
+
+    // 6. ПОСТРОЕНИЕ ТОРЦЕВОЙ ЗОНЫ (СХЕМЫ 1, 2, 3 + РАЗРЕЗ)
+    edgeGroup = new THREE.Group();
+    panelGroup.add(edgeGroup);
+
+    const openFront = state.cutaway;
+
+    if (state.edgeMode === 'sealant') {
+        // СХЕМА 1: ГЕРМЕТИК PURAFLEX 9270 ЗАПОДЛИЦО
+        const sealDepth = 12;
+        const sealH = tCore + tGlue * 2;
+
+        const sBack = new THREE.Mesh(new THREE.BoxGeometry(wX, sealH, sealDepth), layerMaterials.sealant);
+        sBack.position.set(0, 0, -lZ / 2 + sealDepth / 2);
+        edgeGroup.add(sBack);
+
+        if (!openFront) {
+            const sFront = new THREE.Mesh(new THREE.BoxGeometry(wX, sealH, sealDepth), layerMaterials.sealant);
+            sFront.position.set(0, 0, lZ / 2 - sealDepth / 2);
+            edgeGroup.add(sFront);
+        }
+
+        const sideLen = lZ - (openFront ? sealDepth : sealDepth * 2);
+        const sideShiftZ = openFront ? (sealDepth / 2) : 0;
+        [-1, 1].forEach(dir => {
+            const sSide = new THREE.Mesh(new THREE.BoxGeometry(sealDepth, sealH, sideLen), layerMaterials.sealant);
+            sSide.position.set(dir * (wX / 2 - sealDepth / 2), 0, sideShiftZ);
+            edgeGroup.add(sSide);
+        });
+    }
+    else if (state.edgeMode === 'framing') {
+        // СХЕМА 2: АЛЮМИНИЕВОЕ ОБРАМЛЕНИЕ В ЦВЕТ КАМНЯ + СТЫК 45° СЗАДИ И САМОРЕЗЫ
+        const tProf = 1.6;
+        const backFlangeW = 26;
+        const frontLipW = 8;
+        const gasketT = 1.2;
+        const webH = tCore + tGlue * 2 + tBack + gasketT + tProf;
+        const yWebCenter = -(tBack + gasketT + tProf) / 2;
+        const yBackFlange = -(tCore / 2 + tGlue + tBack + gasketT + tProf);
+        const yGasket = -(tCore / 2 + tGlue + tBack + gasketT / 2);
+        const yFrontLip = tCore / 2 + tGlue - tProf / 2;
+
+        function addFramingSide(sideName) {
+            const isX = (sideName === 'left' || sideName === 'right');
+            const outerLen = isX ? lZ : wX;
+            const mStart = true;
+            const mEnd = (isX && openFront) ? false : true;
+
+            const sideContainer = new THREE.Group();
+
+            // 1. Вертикальная стенка профиля
+            const webMesh = new THREE.Mesh(new THREE.BoxGeometry(outerLen, webH, tProf), layerMaterials.framing);
+            webMesh.position.set(0, yWebCenter, tProf / 2);
+            sideContainer.add(webMesh);
+
+            // 2. Верхняя опорная полочка под край керамогранита
+            const lipMesh = createMiteredFlangeStrip(outerLen, frontLipW, tProf, mStart, mEnd, layerMaterials.framing);
+            lipMesh.position.set(0, yFrontLip + tProf / 2, 0);
+            sideContainer.add(lipMesh);
+
+            // 3. Уплотнительная лента
+            const gasketMesh = createMiteredFlangeStrip(outerLen - 2, backFlangeW - 3, gasketT, mStart, mEnd, layerMaterials.gasket);
+            gasketMesh.position.set(0, yGasket + gasketT / 2, 1.5);
+            sideContainer.add(gasketMesh);
+
+            // 4. Тыльная полка профиля со стыковкой под 45°
+            const backFlangeMesh = createMiteredFlangeStrip(outerLen, backFlangeW, tProf, mStart, mEnd, layerMaterials.framing);
+            backFlangeMesh.position.set(0, yBackFlange + tProf / 2, 0);
+            sideContainer.add(backFlangeMesh);
+
+            // 5. Линии стыка 45° по углам
+            const halfL = outerLen / 2;
+            const linePts = [
+                new THREE.Vector3(-halfL, yBackFlange - 0.15, 0),
+                new THREE.Vector3(-halfL + backFlangeW, yBackFlange - 0.15, backFlangeW)
+            ];
+            if (mEnd) {
+                linePts.push(
+                    new THREE.Vector3(halfL, yBackFlange - 0.15, 0),
+                    new THREE.Vector3(halfL - backFlangeW, yBackFlange - 0.15, backFlangeW)
+                );
+            }
+            sideContainer.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(linePts), layerMaterials.miterLine));
+
+            // 6. Саморезы с прессшайбой
+            const screwPositions = [-halfL + 38, halfL - 38];
+            if (outerLen > 280) screwPositions.push(0);
+            screwPositions.forEach(xPos => {
+                const screw = createScrewMesh();
+                screw.position.set(xPos, yBackFlange, backFlangeW * 0.52);
+                sideContainer.add(screw);
+            });
+
+            if (sideName === 'back') sideContainer.position.set(0, 0, -lZ / 2);
+            else if (sideName === 'front') { sideContainer.rotation.y = Math.PI; sideContainer.position.set(0, 0, lZ / 2); }
+            else if (sideName === 'left') { sideContainer.rotation.y = Math.PI / 2; sideContainer.position.set(-wX / 2, 0, 0); }
+            else if (sideName === 'right') { sideContainer.rotation.y = -Math.PI / 2; sideContainer.position.set(wX / 2, 0, 0); }
+
+            edgeGroup.add(sideContainer);
+        }
+
+        addFramingSide('back');
+        addFramingSide('left');
+        addFramingSide('right');
+        if (!openFront) addFramingSide('front');
+    }
+    else if (state.edgeMode === 'double_bend') {
+        // СХЕМА 3: ДВОЙНОЙ ПОДГИБ КРОМКИ НА ТЫЛЬНЫЙ ЛИСТ СНАРУЖИ + СТЫК 45° И ВЫТЯЖНЫЕ ЗАКЛЁПКИ ПО УГЛАМ (ФОТО)
+        const tAlu = 1.0;
+        const returnFlangeW = 20; // Ширина полки двойного подгиба, заходящей НА тыльный лист снаружи
+        const yBottomBack = -(tCore / 2 + tGlue + tBack); // Внешняя плоскость тыльного листа
+
+        function addDoubleBendSide(sideName) {
+            const isX = (sideName === 'left' || sideName === 'right');
+            const outerLen = isX ? lZ : wX;
+            const mStart = true;
+            const mEnd = (isX && openFront) ? false : true;
+
+            const sideContainer = new THREE.Group();
+
+            // 1. Первая полка подгиба (наклонная от 90° до 45°, огибает соты и торец тыльного листа)
+            const slopedWall = createBeveledBendSide(outerLen, bendH, bevelInset, mStart, mEnd, layerMaterials.aluSheet);
+            slopedWall.position.set(0, -tBack / 2, 0);
+            sideContainer.add(slopedWall);
+
+            // 2. Вторая полка подгиба — ложится СНАРУЖИ НА тыльный лист со стыком 45° в углах (как на прикрепленном фото!)
+            const innerSpanLen = Math.max(30, outerLen - (mStart ? bevelInset : 0) - (mEnd ? bevelInset : 0));
+            const shiftX = ((mStart ? bevelInset : 0) - (mEnd ? bevelInset : 0)) / 2;
+
+            const overlapFlange = createMiteredFlangeStrip(
+                innerSpanLen,
+                returnFlangeW,
+                tAlu,
+                mStart,
+                mEnd,
+                layerMaterials.aluSheet
+            );
+            // Размещаем полку снаружи тыльного листа (yBottomBack)
+            overlapFlange.position.set(shiftX, yBottomBack, bevelInset);
+            sideContainer.add(overlapFlange);
+
+            // 3. Чёткие диагональные линии стыка 45° на углах подогнутой полки
+            const halfSpan = innerSpanLen / 2;
+            const yLine = yBottomBack - tAlu - 0.15;
+            const miterPts = [
+                new THREE.Vector3(shiftX - halfSpan, yLine, bevelInset),
+                new THREE.Vector3(shiftX - halfSpan + returnFlangeW, yLine, bevelInset + returnFlangeW)
+            ];
+            if (mEnd) {
+                miterPts.push(
+                    new THREE.Vector3(shiftX + halfSpan, yLine, bevelInset),
+                    new THREE.Vector3(shiftX + halfSpan - returnFlangeW, yLine, bevelInset + returnFlangeW)
+                );
+            }
+            sideContainer.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(miterPts), layerMaterials.miterLine));
+
+            // 4. Вытяжные заклёпки по углам полки (по 1 заклёпке у каждого скоса 45°, итого по 2 заклёпки на каждый угол панели — точно как на фото!)
+            const rivetOffsetFromCorner = returnFlangeW + 8;
+            const rivetCoords = [shiftX - halfSpan + rivetOffsetFromCorner];
+            if (mEnd) {
+                rivetCoords.push(shiftX + halfSpan - rivetOffsetFromCorner);
+            }
+            rivetCoords.forEach(rx => {
+                const rivet = createRivetMesh();
+                rivet.position.set(rx, yBottomBack - tAlu, bevelInset + returnFlangeW * 0.52);
+                sideContainer.add(rivet);
+            });
+
+            if (sideName === 'back') sideContainer.position.set(0, 0, -lZ / 2);
+            else if (sideName === 'front') { sideContainer.rotation.y = Math.PI; sideContainer.position.set(0, 0, lZ / 2); }
+            else if (sideName === 'left') { sideContainer.rotation.y = Math.PI / 2; sideContainer.position.set(-wX / 2, 0, 0); }
+            else if (sideName === 'right') { sideContainer.rotation.y = -Math.PI / 2; sideContainer.position.set(wX / 2, 0, 0); }
+
+            edgeGroup.add(sideContainer);
+        }
+
+        addDoubleBendSide('back');
+        addDoubleBendSide('left');
+        addDoubleBendSide('right');
+        if (!openFront) addDoubleBendSide('front');
+    }
+
+    updateLayerPositions();
+    updateTelemetry();
+    updateEdgeInfoCard();
+}
+
+// ============================================================
+// 6. ПОЗИЦИОНИРОВАНИЕ СЛОЕВ ПРИ ВЗРЫВ-СХЕМЕ И ВЫНОСКИ
+// ============================================================
+function updateLayerPositions() {
+    const explodeFactor = parseFloat(document.getElementById('explodeSlider').value) || 0;
+    const sep = explodeFactor * 0.95;
+
+    const isDoubleBend = (state.edgeMode === 'double_bend');
+    const tFace = state.faceThickness;
+    const tMidAlu = isDoubleBend ? 1.0 : 0.0;
+    const tCore = state.coreThickness;
+    const tBack = state.backType === 'aluminum_10' ? 1.0 : 0.7;
+    const tGlue = 0.35;
+
+    const coreY = 0;
+    const glue1Y = coreY + tCore / 2 + tGlue / 2 + sep * 0.35;
+
+    if (isDoubleBend && midAluMesh && glueTopMesh) {
+        const midAluY = glue1Y + tGlue / 2 + tMidAlu / 2 + sep * 0.45;
+        const glueTopY = midAluY + tMidAlu / 2 + tGlue / 2 + sep * 0.45;
+        const faceY = glueTopY + tGlue / 2 + tFace / 2 + sep * 0.65;
+        midAluMesh.position.y = midAluY;
+        glueTopMesh.position.y = glueTopY;
+        faceMesh.position.y = faceY;
+    } else if (faceMesh) {
+        faceMesh.position.y = glue1Y + tGlue / 2 + tFace / 2 + sep * 0.75;
+    }
+
+    const glue2Y = coreY - tCore / 2 - tGlue / 2 - sep * 0.35;
+    const backY = glue2Y - tGlue / 2 - tBack / 2 - sep * 0.75;
+
+    if (glue1Mesh) glue1Mesh.position.y = glue1Y;
+    if (coreMesh) coreMesh.position.y = coreY;
+    if (glue2Mesh) glue2Mesh.position.y = glue2Y;
+    if (backMesh) backMesh.position.y = backY;
+
+    if (edgeGroup) {
+        if (state.edgeMode === 'framing' || state.edgeMode === 'double_bend') {
+            edgeGroup.position.y = -(sep * 0.75);
+        } else {
+            edgeGroup.position.y = 0;
+        }
+    }
+
+    updateAnnotationsScreenSafe();
+}
+
+let annotationHudNodes = new Map();
+let annotationHudSignature = '';
+
+function updateAnnotationsScreenSafe() {
+    const explodeFactor = parseFloat(document.getElementById('explodeSlider').value) || 0;
+    const stage = document.querySelector('.stage-container');
+    const svg = document.getElementById('layerCalloutsSvg');
+    const badgesContainer = document.getElementById('layerCalloutsContainer');
+    if (!stage || !svg || !badgesContainer) return;
+
+    const width = stage.clientWidth, height = stage.clientHeight;
+    if (explodeFactor < 8 || width < 1 || height < 1) {
+        if (svg.childElementCount || badgesContainer.childElementCount) {
+            svg.replaceChildren(); badgesContainer.replaceChildren();
+            annotationHudNodes.clear(); annotationHudSignature = '';
+        }
+        return;
+    }
+
+    const decor = ceramicDecorPalette.find(d => d.id === state.faceDecor) || ceramicDecorPalette[0];
+    const isDoubleBend = (state.edgeMode === 'double_bend');
+    const backLabel = state.backType === 'aluminum_10' ? 'Алюминий 1.0 мм' : 'Оцинкованная сталь 0.7 мм';
+
+    const layers = [
+        {
+            key: 'face', mesh: faceMesh,
+            title: '1. Лицевой лист — Керамогранит',
+            desc: `${decor.name} • ${state.faceThickness.toFixed(1)} мм`,
+            color: '#38bdf8'
+        }
+    ];
+
+    if (isDoubleBend && glueTopMesh && midAluMesh) {
+        layers.push(
+            {
+                key: 'glueTop', mesh: glueTopMesh,
+                title: '2. Клей 2-го этапа (ПУР)',
+                desc: 'Наклейка камня на готовую кассету',
+                color: '#22c55e'
+            },
+            {
+                key: 'midAlu', mesh: midAluMesh,
+                title: '3. Лицевой лист кассеты',
+                desc: 'Алюминий 1.0 мм (основа под двойной подгиб)',
+                color: '#a855f7'
+            }
+        );
+    }
+
+    layers.push(
+        {
+            key: 'glue1', mesh: glue1Mesh,
+            title: isDoubleBend ? '4. Клей 1-го этапа (ПУР)' : '2. Клеевой слой (ПУР)',
+            desc: 'Двухкомпонентный полиуретановый клей',
+            color: '#22c55e'
+        },
+        {
+            key: 'core', mesh: coreMesh,
+            title: isDoubleBend ? '5. Сотовый заполнитель' : '3. Сотовый заполнитель',
+            desc: `Алюминиевая сота ${state.coreThickness} мм • ячейка Ø ${state.cellSize} мм`,
+            color: '#f59e0b'
+        },
+        {
+            key: 'back', mesh: backMesh,
+            title: isDoubleBend ? `6. Тыльный лист + подгиб ${state.bendAngle}° на заклёпках` : '4. Тыльный лист',
+            desc: backLabel,
+            color: '#94a3b8'
+        }
+    );
+
+    const signature = layers.map(x => `${x.key}|${x.title}|${x.desc}`).join('~');
+    if (signature !== annotationHudSignature) {
+        badgesContainer.replaceChildren(); annotationHudNodes.clear();
+        layers.forEach(layer => {
+            const badge = document.createElement('div');
+            badge.className = 'layer-hud-badge';
+            badge.style.borderLeftColor = layer.color;
+            badge.innerHTML = `
+                <div class="badge-title"><span style="color:${layer.color}">●</span><span>${layer.title}</span></div>
+                <div class="badge-desc">${layer.desc}</div>
+            `;
+            badgesContainer.appendChild(badge);
+            annotationHudNodes.set(layer.key, { badge });
+        });
+        annotationHudSignature = signature;
+    }
+
+    panelGroup.updateMatrixWorld(true);
+    camera.updateMatrixWorld(true);
+    const stageRect = stage.getBoundingClientRect();
+    const hud = document.getElementById('calcHud');
+    const hudRect = hud ? hud.getBoundingClientRect() : null;
+    const safeLeft = 14;
+    let safeRight = Math.min(width - 14, hudRect ? (hudRect.left - stageRect.left - 14) : width - 14);
+    if (safeRight - safeLeft < 220) safeRight = width - 14;
+
+    const safeTop = 80;
+    const safeBottom = Math.max(safeTop + 60, height - 85);
+    const badgeWidth = 265, badgeHeight = 42;
+
+    const activeItems = [];
+    layers.forEach(layer => {
+        if (!layer.mesh) return;
+        const anchorLocal = new THREE.Vector3(currentVisualWX * 0.45, layer.mesh.position.y, currentVisualLZ * 0.45);
+        const anchorWorld = panelGroup.localToWorld(anchorLocal);
+        const projected = anchorWorld.project(camera);
+        if (!Number.isFinite(projected.x) || projected.z < -1 || projected.z > 1) return;
+        const rawX = (projected.x * 0.5 + 0.5) * width;
+        const rawY = (-projected.y * 0.5 + 0.5) * height;
+        const sx = Math.max(safeLeft, Math.min(safeRight, rawX));
+        const sy = Math.max(safeTop, Math.min(safeBottom, rawY));
+        const desiredX = rawX <= (safeLeft + safeRight) / 2 ? sx + 26 : sx - badgeWidth - 26;
+        const badgeX = Math.max(safeLeft, Math.min(safeRight - badgeWidth, desiredX));
+        activeItems.push({ layer, sx, sy, rawY, badgeX, badgeY: sy - badgeHeight / 2 });
+    });
+
+    activeItems.sort((a, b) => a.rawY - b.rawY);
+    const minGap = 47;
+    activeItems.forEach((item, i) => {
+        const ideal = Math.max(safeTop, Math.min(safeBottom - badgeHeight, item.rawY - badgeHeight / 2));
+        item.badgeY = i === 0 ? ideal : Math.max(ideal, activeItems[i - 1].badgeY + minGap);
+    });
+
+    svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    let paths = '';
+    activeItems.forEach(item => {
+        const node = annotationHudNodes.get(item.layer.key);
+        if (!node) return;
+        node.badge.style.left = `${item.badgeX}px`;
+        node.badge.style.top = `${item.badgeY}px`;
+        const badgeMidY = item.badgeY + badgeHeight / 2;
+        const badgeEdgeX = item.badgeX > item.sx ? item.badgeX : item.badgeX + badgeWidth;
+        const elbowX = item.sx + (badgeEdgeX - item.sx) * 0.55;
+        paths += `<circle cx="${item.sx.toFixed(1)}" cy="${item.sy.toFixed(1)}" r="3.2" fill="${item.layer.color}"/>
+                  <polyline points="${item.sx.toFixed(1)},${item.sy.toFixed(1)} ${elbowX.toFixed(1)},${badgeMidY.toFixed(1)} ${badgeEdgeX.toFixed(1)},${badgeMidY.toFixed(1)}" fill="none" stroke="${item.layer.color}" stroke-width="1.4" stroke-dasharray="3,2"/>`;
+    });
+    svg.innerHTML = paths;
+}
+
+// ============================================================
+// 7. ТЕЛЕМЕТРИЯ И КАРТОЧКА СВОЙСТВ ТОРЦА
+// ============================================================
+function updateTelemetry() {
+    const isDoubleBend = (state.edgeMode === 'double_bend');
+    const tFace = state.faceThickness;
+    const tMidAlu = isDoubleBend ? 1.0 : 0.0;
+    const tCore = state.coreThickness;
+    const tBack = state.backType === 'aluminum_10' ? 1.0 : 0.7;
+    const totalThick = tFace + tMidAlu + tCore + tBack + (isDoubleBend ? 0.9 : 0.6);
+
+    const areaM2 = (state.width * state.length) / 1e6;
+    const decor = ceramicDecorPalette.find(d => d.id === state.faceDecor) || ceramicDecorPalette[0];
+
+    document.getElementById('tabSummaryFace').textContent = `${tFace.toFixed(1)} мм • ${decor.name.split(' ')[0]}`;
+    document.getElementById('tabSummaryCore').textContent = `${tCore} мм • Ø ${state.cellSize}`;
+    document.getElementById('tabSummaryBack').textContent = state.backType === 'aluminum_10' ? 'Al 1.0 мм' : 'Оцинк. 0.7 мм';
+
+    const wCeramic = 2.4 * tFace;
+    const wMidAlu = isDoubleBend ? 2.7 : 0;
+    const wBack = state.backType === 'aluminum_10' ? 2.7 * 1.0 : 7.85 * 0.7;
+    const cellNum = parseFloat(state.cellSize);
+    const wCore = (tCore / 18) * (state.foilThickness / 0.05) * (9.5 / cellNum) * 1.55;
+    const wEdgeFactor = state.edgeMode === 'framing' ? 0.85 : (state.edgeMode === 'sealant' ? 0.55 : (isDoubleBend ? 0.65 : 0));
+    const wTotalM2 = wCeramic + wMidAlu + wBack + wCore + (isDoubleBend ? 1.1 : 0.65) + wEdgeFactor;
+    const wPanel = wTotalM2 * areaM2;
+
+    document.getElementById('hudTotalThick').textContent = `${totalThick.toFixed(1)} мм`;
+    document.getElementById('hudArea').textContent = `${areaM2.toFixed(3)} м²`;
+    document.getElementById('hudWeight').textContent = `${wPanel.toFixed(2)} / ${wTotalM2.toFixed(1)} кг`;
+
+    const edgeTitles = {
+        sealant: '1. Герметик Puraflex',
+        framing: '2. Обрамление (саморезы)',
+        double_bend: `3. Подгиб ${state.bendAngle}° (заклёпки)`,
+        open: '4. Открытый торец'
+    };
+    document.getElementById('hudEdgeName').textContent = edgeTitles[state.edgeMode];
+    document.getElementById('hudGlueStages').textContent = isDoubleBend ? '2 этапа (кассета + камень)' : '1 этап (прямая склейка)';
+
+    const spanM = Math.min(state.width, state.length) / 1000;
+    const Ef = 55e9;
+    const Eb = (state.backType === 'aluminum_10' ? 70e9 : 200e9);
+    const tfM = (tFace + tMidAlu) / 1000;
+    const tbM = tBack / 1000;
+    const hcM = (tCore + (tFace + tBack) / 2) / 1000;
+    const D = (Ef * tfM * Eb * tbM * Math.pow(hcM, 2)) / (Ef * tfM + Eb * tbM);
+    const deflMm = ((5 * 600 * Math.pow(spanM, 4)) / (384 * D)) * 1000;
+    document.getElementById('hudDeflection').textContent = `${deflMm.toFixed(2)} мм (Норма)`;
+}
+
+function updateEdgeInfoCard() {
+    const info = edgeMethodInfo[state.edgeMode];
+    document.getElementById('edgeBadge').textContent = info.badge;
+    const card = document.getElementById('edgeInfoCard');
+    card.innerHTML = `
+        <div class="edge-info-header">
+            <span>📋 ${info.title}</span>
+        </div>
+        <div class="edge-info-row">
+            <span class="edge-info-label">Внешний вид торца:</span>
+            <span class="edge-info-val ${info.LookClass}">${info.look}</span>
+        </div>
+        <div class="edge-info-row">
+            <span class="edge-info-label">Фиксация с тыла:</span>
+            <span class="edge-info-val">${info.fastening}</span>
+        </div>
+        <div class="edge-info-row">
+            <span class="edge-info-label">Подрезка в размер:</span>
+            <span class="edge-info-val ${info.trimClass}">${info.trimming}</span>
+        </div>
+        <div class="edge-info-row">
+            <span class="edge-info-label">Скорость сборки:</span>
+            <span class="edge-info-val ${info.speedClass}">${info.speed}</span>
+        </div>
+        <div class="edge-info-row">
+            <span class="edge-info-label">Применение:</span>
+            <span class="edge-info-val">${info.bestFor}</span>
+        </div>
+    `;
+}
+
+// ============================================================
+// 8. ИНТЕРФЕЙС И ОБРАБОТЧИКИ СОБЫТИЙ
+// ============================================================
+function renderDecorGrid() {
+    const grid = document.getElementById('faceDecorGrid');
+    grid.innerHTML = '';
+    ceramicDecorPalette.forEach(d => {
+        const pbr = getOrCreatePBRDecor(d);
+        const card = document.createElement('div');
+        card.className = 'decor-card' + (d.id === state.faceDecor ? ' active' : '');
+        card.innerHTML = `
+            <div class="decor-preview" style="background-image:url('${pbr.previewDataUrl}')"></div>
+            <div class="decor-card-name">${d.name}</div>
+        `;
+        card.addEventListener('click', () => {
+            state.faceDecor = d.id;
+            document.getElementById('faceDecorLabel').textContent = d.name;
+            grid.querySelectorAll('.decor-card').forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            updateMaterials();
+            rebuildPanelGeometry();
+        });
+        grid.appendChild(card);
+    });
+}
+
+function syncBackSheetUI() {
+    const isDoubleBend = (state.edgeMode === 'double_bend');
+    document.querySelectorAll('#backSheetGroup button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.back === state.backType);
+        if (btn.dataset.back === 'galvanized_07') {
+            btn.disabled = isDoubleBend;
+        }
+    });
+    const note = document.getElementById('backSheetNote');
+    if (isDoubleBend) {
+        note.innerHTML = '<strong>Автоматический выбор для Схемы 3: Алюминий 1.0 мм.</strong> Кромка верхнего алюминиевого листа кассеты заходит снаружи на тыльный лист и фиксируется заклёпками.';
+    } else if (state.backType === 'galvanized_07') {
+        note.textContent = 'В схемах 1 и 2 по умолчанию применяется оцинкованная сталь 0.7 мм (близкий к керамограниту коэффициент теплового расширения).';
+    } else {
+        note.textContent = 'Алюминиевый тыльный лист 1.0 мм снижает общий вес панели.';
+    }
+}
+
+function syncEdgeControlsUI() {
+    document.querySelectorAll('#edgeModeGroup .edge-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.mode === state.edgeMode);
+    });
+    document.getElementById('bendAngleGroup').classList.toggle('hidden', state.edgeMode !== 'double_bend');
+    document.getElementById('frameColorOption').classList.toggle('hidden', state.edgeMode !== 'framing');
+
+    const cutBtn = document.getElementById('cutawayToggle');
+    cutBtn.classList.toggle('active', state.cutaway);
+    document.getElementById('cutawayStatus').textContent = state.cutaway ? 'ВКЛ' : 'ВЫКЛ';
+}
+
+function applyStateConfig(cfg) {
+    Object.assign(state, cfg);
+    document.getElementById('faceThickness').value = state.faceThickness;
+    document.getElementById('faceThickVal').textContent = `${state.faceThickness.toFixed(1)} мм`;
+    document.getElementById('coreThickness').value = state.coreThickness;
+    document.getElementById('coreThickVal').textContent = `${state.coreThickness} мм`;
+    document.getElementById('foilThickness').value = state.foilThickness;
+    document.getElementById('foilThickVal').textContent = `${state.foilThickness} мм`;
+    document.getElementById('bendAngleSlider').value = state.bendAngle;
+    const desc = state.bendAngle <= 60 ? ' (Скрытый)' : (state.bendAngle === 90 ? ' (Прямой)' : '');
+    document.getElementById('bendAngleVal').textContent = `${state.bendAngle}°${desc}`;
+    document.getElementById('contrastFrameCheck').checked = !!state.contrastFrame;
+
+    document.getElementById('lengthInput').value = state.length;
+    document.getElementById('lengthSlider').value = state.length;
+    document.getElementById('lengthVal').textContent = `${state.length} мм`;
+    document.getElementById('widthInput').value = state.width;
+    document.getElementById('widthSlider').value = state.width;
+    document.getElementById('widthVal').textContent = `${state.width} мм`;
+
+    document.querySelectorAll('#cellSizeGroup button').forEach(b => {
+        b.classList.toggle('active', b.dataset.value === state.cellSize);
+    });
+    document.querySelectorAll('#bendAnglePresets button').forEach(b => {
+        b.classList.toggle('active', parseInt(b.dataset.angle) === state.bendAngle);
+    });
+
+    const decor = ceramicDecorPalette.find(d => d.id === state.faceDecor) || ceramicDecorPalette[0];
+    document.getElementById('faceDecorLabel').textContent = decor.name;
+
+    renderDecorGrid();
+    syncEdgeControlsUI();
+    syncBackSheetUI();
+    updateMaterials();
+    rebuildPanelGeometry();
+}
+
+// Переключение способов закрытия торцов (остальные слои автоматически подстраиваются под схему 1, 2 или 3)
+document.querySelectorAll('#edgeModeGroup .edge-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        state.edgeMode = btn.dataset.mode;
+        if (state.edgeMode === 'double_bend') {
+            state.backType = 'aluminum_10';
+        } else {
+            state.backType = 'galvanized_07';
+        }
+        syncEdgeControlsUI();
+        syncBackSheetUI();
+        updateMaterials();
+        rebuildPanelGeometry();
+    });
+});
+
+// Переключатель «Разрез (открыть передний торец)»
+document.getElementById('cutawayToggle').addEventListener('click', () => {
+    state.cutaway = !state.cutaway;
+    syncEdgeControlsUI();
+    rebuildPanelGeometry();
+});
+
+// Ползунок и кнопки угла подгиба (90°..45°) для Схемы 3
+const bendSlider = document.getElementById('bendAngleSlider');
+bendSlider.addEventListener('input', (e) => {
+    state.bendAngle = parseInt(e.target.value);
+    const desc = state.bendAngle <= 60 ? ' (Скрытый)' : (state.bendAngle === 90 ? ' (Прямой)' : '');
+    document.getElementById('bendAngleVal').textContent = `${state.bendAngle}°${desc}`;
+    document.querySelectorAll('#bendAnglePresets button').forEach(b => {
+        b.classList.toggle('active', parseInt(b.dataset.angle) === state.bendAngle);
+    });
+    rebuildPanelGeometry();
+});
+
+document.querySelectorAll('#bendAnglePresets button').forEach(btn => {
+    btn.addEventListener('click', () => {
+        state.bendAngle = parseInt(btn.dataset.angle);
+        bendSlider.value = state.bendAngle;
+        const desc = state.bendAngle <= 60 ? ' (Скрытый)' : (state.bendAngle === 90 ? ' (Прямой)' : '');
+        document.getElementById('bendAngleVal').textContent = `${state.bendAngle}°${desc}`;
+        document.querySelectorAll('#bendAnglePresets button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        rebuildPanelGeometry();
+    });
+});
+
+// Чекбокс контрастной рамки
+document.getElementById('contrastFrameCheck').addEventListener('change', (e) => {
+    state.contrastFrame = e.target.checked;
+    updateMaterials();
+    rebuildPanelGeometry();
+});
+
+// Вкладки слоев
+document.querySelectorAll('#layerTabs .layer-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('#layerTabs .layer-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.layer-pane').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(`pane-${tab.dataset.tab}`).classList.add('active');
+    });
+});
+
+// Толщина керамогранита, соты и фольги
+document.getElementById('faceThickness').addEventListener('input', (e) => {
+    state.faceThickness = parseFloat(e.target.value);
+    document.getElementById('faceThickVal').textContent = `${state.faceThickness.toFixed(1)} мм`;
+    rebuildPanelGeometry();
+});
+document.getElementById('coreThickness').addEventListener('input', (e) => {
+    state.coreThickness = parseInt(e.target.value);
+    document.getElementById('coreThickVal').textContent = `${state.coreThickness} мм`;
+    rebuildPanelGeometry();
+});
+document.getElementById('foilThickness').addEventListener('input', (e) => {
+    state.foilThickness = parseFloat(e.target.value);
+    document.getElementById('foilThickVal').textContent = `${state.foilThickness.toFixed(2)} мм`;
+    rebuildPanelGeometry();
+});
+
+// Ячейка соты (6.3 / 9.5 / 12.7)
+document.querySelectorAll('#cellSizeGroup button').forEach(btn => {
+    btn.addEventListener('click', () => {
+        state.cellSize = btn.dataset.value;
+        document.querySelectorAll('#cellSizeGroup button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        rebuildPanelGeometry();
+    });
+});
+
+// Тыльный лист (Оцинковка 0.7 / Алюминий 1.0)
+document.querySelectorAll('#backSheetGroup button').forEach(btn => {
+    btn.addEventListener('click', () => {
+        if (btn.disabled) return;
+        state.backType = btn.dataset.back;
+        syncBackSheetUI();
+        rebuildPanelGeometry();
+    });
+});
+
+// Габариты
+document.querySelectorAll('#quickSizesBar .quick-size-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+        document.querySelectorAll('#quickSizesBar .quick-size-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        state.length = parseInt(chip.dataset.l);
+        state.width = parseInt(chip.dataset.w);
+        document.getElementById('lengthInput').value = state.length;
+        document.getElementById('lengthSlider').value = state.length;
+        document.getElementById('lengthVal').textContent = `${state.length} мм`;
+        document.getElementById('widthInput').value = state.width;
+        document.getElementById('widthSlider').value = state.width;
+        document.getElementById('widthVal').textContent = `${state.width} мм`;
+        rebuildPanelGeometry();
+    });
+});
+
+function setupDimSync(sliderId, inputId, valId, key, maxVal) {
+    const s = document.getElementById(sliderId);
+    const inp = document.getElementById(inputId);
+    const ind = document.getElementById(valId);
+    s.addEventListener('input', (e) => {
+        state[key] = parseInt(e.target.value);
+        inp.value = state[key];
+        ind.textContent = `${state[key]} мм`;
+        document.querySelectorAll('#quickSizesBar .quick-size-chip').forEach(c => c.classList.remove('active'));
+        rebuildPanelGeometry();
+    });
+    inp.addEventListener('change', (e) => {
+        let v = Math.max(200, Math.min(maxVal, parseInt(e.target.value) || 300));
+        state[key] = v;
+        inp.value = v;
+        s.value = Math.min(v, parseInt(s.max));
+        ind.textContent = `${v} мм`;
+        document.querySelectorAll('#quickSizesBar .quick-size-chip').forEach(c => c.classList.remove('active'));
+        rebuildPanelGeometry();
+    });
+}
+setupDimSync('lengthSlider', 'lengthInput', 'lengthVal', 'length', 3000);
+setupDimSync('widthSlider', 'widthInput', 'widthVal', 'width', 1200);
+
+// Разнесение слоев (Взрыв)
+document.getElementById('explodeSlider').addEventListener('input', (e) => {
+    document.getElementById('explodeVal').textContent = `${Math.round(e.target.value)}%`;
+    updateLayerPositions();
+});
+
+// ============================================================
+// 9. КАМЕРА, АНИМАЦИЯ СБОРКИ И КОМПАКТНЫЙ ДЕМО-ОБЗОР
+// ============================================================
+const cameraViews = {
+    '3d45': { pos: [380, 290, 420], target: [0, 0, 0] },
+    'edge': { pos: [155, 25, 255],  target: [40, -4, 120] },
+    'back': { pos: [280, -290, 300], target: [0, -10, 0] },
+    'top':  { pos: [0, 650, 0.1],   target: [0, 0, 0] }
+};
+
+function animateCamera(targetPos, targetLookAt, duration = 750) {
+    const startPos = camera.position.clone();
+    const startTarget = controls.target.clone();
+    const endPos = new THREE.Vector3(...targetPos);
+    const endTarget = new THREE.Vector3(...targetLookAt);
+    const startTime = performance.now();
+    function step(now) {
+        const t = Math.min(1, (now - startTime) / duration);
+        const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        camera.position.lerpVectors(startPos, endPos, ease);
+        controls.target.lerpVectors(startTarget, endTarget, ease);
+        controls.update();
+        if (t < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+}
+
+document.querySelectorAll('.view-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        stopDemoMode();
+        document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        panelGroup.rotation.set(0, 0, 0);
+        const v = cameraViews[btn.dataset.view];
+        if (v) animateCamera(v.pos, v.target);
+    });
+});
+
+document.querySelectorAll('.light-btn').forEach(btn => {
+    btn.addEventListener('click', () => setLightingScenario(btn.dataset.scene));
+});
+
+let autoRotateEnabled = false;
+const rotateToggle = document.getElementById('rotateToggle');
+rotateToggle.addEventListener('click', () => {
+    autoRotateEnabled = !autoRotateEnabled;
+    rotateToggle.textContent = autoRotateEnabled ? '⏸' : '▶';
+});
+
+function animateExplodeValue(targetVal, duration = 1000) {
+    const slider = document.getElementById('explodeSlider');
+    const startVal = parseFloat(slider.value);
+    const startTime = performance.now();
+    function step(now) {
+        const t = Math.min(1, (now - startTime) / duration);
+        const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        const val = startVal + (targetVal - startVal) * ease;
+        slider.value = val;
+        document.getElementById('explodeVal').textContent = `${Math.round(val)}%`;
+        updateLayerPositions();
+        if (t < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+}
+
+document.getElementById('animateAssembly').addEventListener('click', () => {
+    stopDemoMode();
+    document.getElementById('explodeSlider').value = 90;
+    document.getElementById('explodeVal').textContent = '90%';
+    updateLayerPositions();
+    animateExplodeValue(0, 1800);
+});
+
+// КОМПАКТНЫЙ ДЕМО-ТУР УНИКОР КЕРАМИК (4 СЦЕНЫ)
+let demoActive = false;
+let demoStepIndex = 0;
+let demoStageTimer = null;
+let demoSubTimers = [];
+let demoStartTime = 0;
+const DEMO_DURATION = 7800;
+
+const demoStages = [
+    {
+        title: "1/4. СОСТАВ ПАНЕЛИ «УНИКОР КЕРАМИК» (ВЗРЫВ-СХЕМА)",
+        subtitle: "Керамогранит Серый монотон 3.5 мм + ПУР-клей + Алюминиевая сота + Тыльный лист",
+        setup: () => {
+            applyStateConfig({ edgeMode: 'framing', backType: 'galvanized_07', cutaway: true });
+            panelGroup.rotation.set(0, 0, 0);
+            animateCamera([390, 260, 410], [0, 0, 0], 900);
+            animateExplodeValue(75, 1400);
+            demoSubTimers.push(setTimeout(() => animateExplodeValue(0, 1200), 5800));
+        }
+    },
+    {
+        title: "2/4. СХЕМА 1 — ГЕРМЕТИК PURAFLEX 9270",
+        subtitle: "Эластичное заполнение торца по периметру со шлифовкой заподлицо",
+        setup: () => {
+            animateExplodeValue(0, 500);
+            applyStateConfig({ edgeMode: 'sealant', backType: 'galvanized_07', cutaway: true });
+            panelGroup.rotation.set(0, 0, 0);
+            animateCamera([190, 45, 270], [35, 0, 110], 1100);
+        }
+    },
+    {
+        title: "3/4. СХЕМА 2 — ОБРАМЛЕНИЕ В ЦВЕТ КАМНЯ + САМОРЕЗЫ",
+        subtitle: "Профиль встает под керамогранит, а с тыльной стороны стыкуется под 45° на саморезах",
+        setup: () => {
+            animateExplodeValue(0, 500);
+            applyStateConfig({ edgeMode: 'framing', backType: 'galvanized_07', cutaway: true });
+            panelGroup.rotation.set(0, 0, 0);
+            animateCamera([175, 35, 255], [40, -5, 110], 1000);
+            demoSubTimers.push(setTimeout(() => {
+                animateCamera([270, -270, 290], [0, -10, 0], 1500);
+            }, 3400));
+        }
+    },
+    {
+        title: "4/4. СХЕМА 3 — ДВОЙНОЙ ПОДГИБ НА ТЫЛЬНЫЙ ЛИСТ + ЗАКЛЁПКИ",
+        subtitle: "Кромка кассеты под углом 90°…45° заходит НА тыльный лист со стыком 45° и фиксируется заклёпками",
+        setup: () => {
+            animateExplodeValue(0, 400);
+            applyStateConfig({ edgeMode: 'double_bend', backType: 'aluminum_10', bendAngle: 60, cutaway: true });
+            panelGroup.rotation.set(0, 0, 0);
+            setLightingScenario('grazing');
+            animateCamera([185, 30, 260], [40, -5, 110], 1000);
+            demoSubTimers.push(setTimeout(() => {
+                // Показываем тыльную сторону с нахлёстом полки, стыком 45° и заклёпками по углам
+                animateCamera([265, -280, 285], [0, -10, 0], 1500);
+            }, 3200));
+        }
+    }
+];
+
+function runDemoStage(idx) {
+    if (!demoActive) return;
+    clearTimeout(demoStageTimer);
+    demoSubTimers.forEach(clearTimeout);
+    demoSubTimers = [];
+
+    demoStepIndex = idx % demoStages.length;
+    const st = demoStages[demoStepIndex];
+    document.getElementById('demoStepCounter').textContent = `ШАГ ${demoStepIndex + 1} / ${demoStages.length}`;
+    document.getElementById('demoTitle').textContent = st.title;
+    document.getElementById('demoSubtitle').textContent = st.subtitle;
+    document.querySelectorAll('[data-demo-act]').forEach((b, i) => b.classList.toggle('active', i === demoStepIndex));
+
+    st.setup();
+    demoStartTime = performance.now();
+    demoStageTimer = setTimeout(() => runDemoStage(demoStepIndex + 1), DEMO_DURATION);
+}
+
+function startDemoMode() {
+    demoActive = true;
+    document.getElementById('demoModeBtn').classList.add('active');
+    document.getElementById('demoModeBtn').innerHTML = '<span>⏹ Стоп Демо</span>';
+    document.getElementById('demoBanner').classList.remove('hidden');
+    runDemoStage(0);
+}
+
+function stopDemoMode() {
+    if (!demoActive) return;
+    demoActive = false;
+    clearTimeout(demoStageTimer);
+    demoSubTimers.forEach(clearTimeout);
+    demoSubTimers = [];
+    setLightingScenario('d65');
+    document.getElementById('demoModeBtn').classList.remove('active');
+    document.getElementById('demoModeBtn').innerHTML = '<span>🎬 Демо-обзор</span>';
+    document.getElementById('demoBanner').classList.add('hidden');
+}
+
+document.getElementById('demoModeBtn').addEventListener('click', () => {
+    if (demoActive) stopDemoMode(); else startDemoMode();
+});
+document.querySelectorAll('[data-demo-act]').forEach(btn => {
+    btn.addEventListener('click', () => runDemoStage(parseInt(btn.dataset.demoAct)));
+});
+
+// ============================================================
+// 10. ЦИКЛ РЕНДЕРА И СТАРТ
+// ============================================================
+function handleResize() {
+    const container = document.querySelector('.stage-container');
+    const w = container.clientWidth, h = container.clientHeight;
+    if (w > 0 && h > 0) {
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h, false);
+    }
+}
+window.addEventListener('resize', handleResize);
+
+function animate(now) {
+    requestAnimationFrame(animate);
+    controls.update();
+    updateAnnotationsScreenSafe();
+
+    if (demoActive) {
+        const pct = Math.min(100, ((now - demoStartTime) / DEMO_DURATION) * 100);
+        document.getElementById('demoProgressBar').style.width = `${pct}%`;
+    } else if (autoRotateEnabled) {
+        panelGroup.rotation.y += 0.002;
+    }
+
+    renderer.render(scene, camera);
+}
+
+// Инициализация
+setLightingScenario('d65');
+applyStateConfig(state);
+
+setTimeout(() => {
+    handleResize();
+    rebuildPanelGeometry();
+    requestAnimationFrame(animate);
+}, 40);
+</script>
+</body>
+</html>
