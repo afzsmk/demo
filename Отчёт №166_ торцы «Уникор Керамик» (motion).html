@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Отчёт №166: торцы «Уникор Керамик»</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#e6e9ec;--stage:#f5f6f7;--ink:#14191e;--mute:#56616b;--line:#c3c9ce;--cer:#8f928d;--zn:#6f7c88;--al:#c3ccd4;--core:#d9dee2;--hcl:#8a97a2;--seal:#2f6f9a;--hot:#e8590c;color-scheme:light;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1317;--stage:#171d23;--ink:#e8ecef;--mute:#97a3ad;--line:#2c353d;--cer:#9a9c97;--zn:#6d7a86;--al:#b9c3cc;--core:#222a31;--hcl:#5d6a75;--seal:#4c97c7;--hot:#ff8a3d;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1317;--stage:#171d23;--ink:#e8ecef;--mute:#97a3ad;--line:#2c353d;--cer:#9a9c97;--zn:#6d7a86;--al:#b9c3cc;--core:#222a31;--hcl:#5d6a75;--seal:#4c97c7;--hot:#ff8a3d;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 Onest,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh}
+main{max-width:1000px;margin:0 auto;padding:16px}
+.bar{display:flex;gap:6px;margin-bottom:12px}
+.seg{flex:1;height:6px;background:var(--line);border:0;padding:0;border-radius:3px;overflow:hidden;cursor:pointer}
+.seg i{display:block;height:100%;background:var(--ink);transform:scaleX(0);transform-origin:left}
+.seg.done i{transform:scaleX(1)}
+.seg.cur i{animation:prog var(--dur) linear both}
+@keyframes prog{to{transform:scaleX(1)}}
+.stage{background:var(--stage);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.scene{display:none;grid-template-columns:1fr}
+.scene.on{display:grid}
+svg.v{width:100%;height:auto;display:block;background:var(--stage)}
+.cap{padding:8px 20px 22px}
+.cap h2{font-weight:800;font-size:clamp(22px,3.4vw,32px);line-height:1.15;margin:0 0 10px;letter-spacing:-.01em}
+.cap.big h2{font-size:clamp(30px,6vw,56px);letter-spacing:-.025em}
+.cap ul{margin:0;padding-left:20px;max-width:70ch}
+.cap li{margin:4px 0;color:var(--mute)}
+.cap p{margin:0;color:var(--mute);max-width:62ch}
+.ctl{display:flex;gap:8px;margin-top:12px;align-items:center}
+button.b{font:600 14px Onest,system-ui,sans-serif;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:8px;padding:8px 14px;cursor:pointer}
+button.b:hover{border-color:var(--ink)}
+button:focus-visible{outline:2px solid var(--seal);outline-offset:2px}
+.ctl span{margin-left:auto;color:var(--mute);font-size:13px}
+.t{fill:var(--ink);font:600 13px Onest,system-ui,sans-serif}
+.t.m{fill:var(--mute);font-weight:400;font-size:12px}
+.t.h{font-size:15px;font-weight:800}
+/* motion */
+.on .a{animation-duration:var(--t,1s);animation-delay:var(--d,0s);animation-fill-mode:both;animation-timing-function:ease-in-out}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes fx{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes fy{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes drop{from{opacity:0;transform:translateY(-70px)}to{opacity:1;transform:none}}
+@keyframes rise{from{opacity:0;transform:translateY(70px)}to{opacity:1;transform:none}}
+@keyframes slide{from{opacity:0;transform:translateX(110px)}to{opacity:1;transform:none}}
+@keyframes screw{from{opacity:0;transform:translateY(36px)}to{opacity:1;transform:none}}
+@keyframes ring{from{stroke-dashoffset:214}to{stroke-dashoffset:0}}
+@keyframes bul{0%{opacity:0;transform:scaleX(.2)}8%{opacity:1;transform:none}70%{opacity:1}100%{opacity:0}}
+@keyframes grind{0%{opacity:0;transform:translate(575px,106px)}10%{opacity:1;transform:translate(550px,106px)}92%{opacity:1}100%{opacity:0;transform:translate(550px,262px)}}
+@keyframes cut{0%{opacity:0;transform:translate(500px,150px)}10%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translate(500px,232px)}}
+@keyframes fold{from{transform:rotate(0)}to{transform:rotate(-90deg)}}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%{opacity:.9;transform:scale(.6)}100%{opacity:0;transform:scale(1.8)}}
+@keyframes blink{0%,100%{opacity:0}50%{opacity:1}}
+@keyframes bar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.on .spin{transform-box:fill-box;transform-origin:center;animation:spin .35s linear infinite}
+.on .pulse{transform-box:fill-box;transform-origin:center;animation:pulse 1.4s ease-out infinite;animation-delay:var(--d,0s)}
+.on .spark{animation:blink .18s steps(2) infinite}
+.bars{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:12px 20px 4px}
+.card{border:1px solid var(--line);border-radius:8px;padding:12px}
+.card h3{margin:0 0 8px;font-size:15px;font-weight:800;line-height:1.25}
+.row{display:grid;grid-template-columns:1fr;font-size:12.5px;color:var(--mute);margin:6px 0}
+.row i{display:block;height:7px;border-radius:4px;background:var(--ink);width:var(--w);transform-origin:left;margin-top:2px}
+.on .row i{animation:bar 1s ease-out both;animation-delay:var(--d,0s)}
+.card p{margin:10px 0 0;font-size:13px;color:var(--ink)}
+.note{padding:0 20px;font-size:12px;color:var(--mute)}
+.paused .on *{animation-play-state:paused!important}
+@media (max-width:640px){.bars{grid-template-columns:1fr}.cap{padding:8px 14px 18px}main{padding:10px}}
+@media (prefers-reduced-motion:reduce){.on .a,.on .spin,.on .pulse,.on .spark{animation-duration:.01s!important;animation-delay:0s!important;animation-iteration-count:1!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<pattern id="hc" width="16" height="9.2" patternUnits="userSpaceOnUse"><rect width="16" height="9.2" style="fill:var(--core)"/><path d="M0 0L8 4.6L16 0M8 4.6V9.2" fill="none" style="stroke:var(--hcl)" stroke-width="1.2"/></pattern>
+<linearGradient id="tg" x1="0" x2="1"><stop offset="0" stop-color="#4a90d9"/><stop offset="1" stop-color="#e8590c"/></linearGradient>
+<g id="pan"><rect x="120" y="110" width="400" height="34" style="fill:var(--cer)"/><rect x="120" y="144" width="400" height="92" fill="url(#hc)"/><rect x="120" y="236" width="400" height="12" style="fill:var(--zn)"/></g>
+</defs></svg>
+
+<main>
+<div class="bar" id="bar"></div>
+<div class="stage">
+
+<!-- 0 -->
+<section class="scene">
+<svg class="v" viewBox="0 0 800 380" role="img" aria-label="Слои панели: керамогранит, сота, тыльная обшивка">
+<rect class="a" x="120" y="110" width="400" height="34" style="fill:var(--cer);animation-name:drop;--d:.3s;--t:1s"/>
+<rect class="a" x="120" y="144" width="400" height="92" fill="url(#hc)" style="animation-name:fade;--d:1s;--t:1s"/>
+<rect class="a" x="120" y="236" width="400" height="12" style="fill:var(--zn);animation-name:rise;--d:1.6s;--t:1s"/>
+<g class="a" style="animation-name:fade;--d:2.6s;--t:.6s"><path d="M520 127H545M520 190H545M520 242H545" style="stroke:var(--mute)"/><text class="t" x="552" y="131">керамогранит</text><text class="t" x="552" y="194">алюминиевая сота</text><text class="t" x="552" y="238">тыльная обшивка</text><text class="t m" x="552" y="254">оцинкованный лист</text></g>
+<g class="a" style="animation-name:fade;--d:3.6s;--t:.5s"><circle class="pulse" cx="520" cy="190" r="26" fill="none" style="stroke:var(--hot);--d:3.8s" stroke-width="3"/><circle cx="520" cy="190" r="5" style="fill:var(--hot)"/><text class="t" x="520" y="300" text-anchor="middle" style="fill:var(--hot)">открытый торец</text><text class="t m" x="520" y="318" text-anchor="middle">сюда попадают влага, грязь и удары</text></g>
+</svg>
+<div class="cap big"><h2>Как закрыть торец панели «Уникор Керамик»</h2><p>Отчёт №166. Максимальный типоразмер 3000 × 1000 × 22 мм. На производстве проверили три способа.</p></div>
+</section>
+
+<!-- 1 -->
+<section class="scene">
+<svg class="v" viewBox="0 0 800 380" role="img" aria-label="Заполнение торца герметиком и шлифовка">
+<use href="#pan"/>
+<rect class="a" x="470" y="144" width="50" height="92" style="fill:var(--seal);animation-name:fx;transform-origin:520px 190px;--d:.5s;--t:2s"/>
+<ellipse class="a" cx="520" cy="190" rx="14" ry="46" style="fill:var(--seal);animation-name:bul;transform-origin:520px 190px;--d:2.5s;--t:6s"/>
+<text class="t a" x="120" y="96" style="animation-name:fade;--d:.4s">Puraflex 9270 заполняет торец</text>
+<g class="a" style="animation-name:fade;--d:2.6s;--t:.5s"><circle cx="680" cy="300" r="34" fill="none" style="stroke:var(--line)" stroke-width="7"/><circle class="a" cx="680" cy="300" r="34" fill="none" style="stroke:var(--seal);animation-name:ring;--d:2.8s;--t:3.4s;transform:rotate(-90deg);transform-origin:680px 300px" stroke-width="7" stroke-dasharray="214"/><text class="t h" x="680" y="305" text-anchor="middle">2 суток</text><text class="t m" x="680" y="352" text-anchor="middle">2,5–3,5 мм/сутки</text></g>
+<g class="a" style="animation-name:grind;--d:6.4s;--t:2.2s;animation-timing-function:linear"><g class="spin"><circle r="22" style="fill:var(--zn)"/><circle r="4" style="fill:var(--ink)"/><path d="M-22 0H22M0 -22V22" style="stroke:var(--ink)" stroke-width="1.5"/></g><circle class="spark" cx="-26" cy="2" r="2.5" style="fill:var(--hot)"/><circle class="spark" cx="-32" cy="10" r="2" style="fill:var(--hot);animation-delay:.07s"/></g>
+<text class="t m a" x="640" y="130" text-anchor="middle" style="animation-name:fade;--d:6.6s">шлифовка УШМ: пыль и риск сколов</text>
+</svg>
+<div class="cap"><h2>Способ 1. Герметик и шлифовка</h2><ul><li>Монолитный торец без метизов и нащельников, сота полностью изолирована.</li><li>Герметик твердеет от влаги воздуха, до шлифовки нужно ждать до 2 суток.</li><li>Шлифовка УШМ даёт вязкую пыль и риск задеть кромку керамогранита.</li></ul></div>
+</section>
+
+<!-- 2 -->
+<section class="scene">
+<svg class="v" viewBox="0 0 800 380" role="img" aria-label="Монтаж алюминиевого профиля на саморезах">
+<use href="#pan"/>
+<g class="a" style="animation-name:slide;--d:.4s;--t:1.2s"><rect x="520" y="110" width="14" height="138" style="fill:var(--al);stroke:var(--line)"/><rect class="a" x="520" y="110" width="14" height="138" style="fill:var(--cer);animation-name:fade;--d:3.4s;--t:.8s"/></g>
+<g class="a" style="animation-name:screw;--d:1.8s;--t:.7s"><rect x="247" y="240" width="6" height="22" style="fill:var(--ink)"/><rect x="242" y="262" width="16" height="5" style="fill:var(--ink)"/></g>
+<g class="a" style="animation-name:screw;--d:2.2s;--t:.7s"><rect x="347" y="240" width="6" height="22" style="fill:var(--ink)"/><rect x="342" y="262" width="16" height="5" style="fill:var(--ink)"/></g>
+<g class="a" style="animation-name:screw;--d:2.6s;--t:.7s"><rect x="447" y="240" width="6" height="22" style="fill:var(--ink)"/><rect x="442" y="262" width="16" height="5" style="fill:var(--ink)"/></g>
+<text class="t m a" x="350" y="296" text-anchor="middle" style="animation-name:fade;--d:3s">саморезы в тыльный лист</text>
+<text class="t a" x="548" y="190" style="animation-name:fade;--d:3.6s">покраска в тон</text>
+<text class="t m a" x="548" y="206" style="animation-name:fade;--d:3.6s">порошковая краска</text>
+<g class="a" style="animation-name:fade;--d:5s;--t:.5s"><circle class="pulse" cx="527" cy="110" r="10" fill="none" style="stroke:var(--hot);--d:5s" stroke-width="2.5"/><text class="t" x="548" y="100" style="fill:var(--hot)">разброс клея даёт ступеньку</text></g>
+</svg>
+<div class="cap"><h2>Способ 2. Алюминиевый профиль на саморезах</h2><ul><li>Сухой монтаж: сразу после сборки рамки панель готова к упаковке.</li><li>Панель можно кроить гидроабразивом в любой размер и ставить профиль по месту.</li><li>Профиль нужно красить, а толщина клея и геометрия профиля должны сходиться точно.</li></ul></div>
+</section>
+
+<!-- 3 -->
+<section class="scene">
+<svg class="v" viewBox="0 0 800 380" role="img" aria-label="Кассета с двойным подгибом на AluRanger">
+<rect x="120" y="144" width="400" height="12" style="fill:var(--al);stroke:var(--line)"/>
+<rect x="120" y="156" width="400" height="80" fill="url(#hc)"/>
+<rect x="120" y="236" width="400" height="12" style="fill:var(--al);stroke:var(--line)"/>
+<rect class="a" x="470" y="156" width="50" height="80" style="fill:var(--stage);animation-name:fy;transform-origin:520px 156px;--d:.6s;--t:1.6s"/>
+<g class="a" style="animation-name:cut;--d:.5s;--t:1.8s;animation-timing-function:linear"><g class="spin"><circle r="14" style="fill:var(--zn)"/><circle r="3" style="fill:var(--ink)"/><path d="M-14 0H14M0 -14V14" style="stroke:var(--ink)" stroke-width="1.5"/></g></g>
+<text class="t m a" x="120" y="96" style="animation-name:fade;--d:.5s">AluRanger выбирает соту по периметру</text>
+<rect class="a" x="520" y="236" width="92" height="12" style="fill:var(--al);stroke:var(--line);animation-name:fold;transform-origin:520px 248px;--d:2.8s;--t:1.4s"/>
+<text class="t m a" x="640" y="270" style="animation-name:fade;--d:2.4s">полка идёт на подгиб</text>
+<rect class="a" x="120" y="110" width="400" height="34" style="fill:var(--cer);animation-name:drop;--d:4.6s;--t:1.3s"/>
+<rect class="a" x="120" y="143" width="400" height="2" style="fill:var(--seal);animation-name:fade;--d:5.8s"/>
+<g class="a" style="animation-name:fade;--d:6.4s;--t:.6s"><path d="M520 248L590 127" fill="none" style="stroke:var(--hot)" stroke-width="2" stroke-dasharray="5 4"/><text class="t" x="600" y="124" style="fill:var(--hot)">подгиб 60° вместо 90°</text><text class="t m" x="600" y="141">стык уходит в тень</text></g>
+<text class="t m a" x="120" y="300" style="animation-name:fade;--d:5.2s">керамогранит клеится вторым прессованием</text>
+</svg>
+<div class="cap"><h2>Способ 3. Кассета с двойным подгибом</h2><ul><li>ЧПУ формирует замкнутый торец, крепежа на торце нет, геометрия не зависит от руки.</li><li>Керамогранит приклеивается на готовую кассету отдельным этапом, прессований два.</li><li>Панель делают строго в чистовой размер: подрезка ломает замок подгиба.</li></ul></div>
+</section>
+
+<!-- 4 -->
+<section class="scene" id="sc4">
+<svg class="v" viewBox="0 0 800 380" role="img" aria-label="Тепловое расширение материалов и прогиб панели">
+<text class="t h" x="40" y="52">КТР, ×10⁻⁶ К⁻¹</text>
+<line x1="40" y1="330" x2="330" y2="330" style="stroke:var(--mute)"/>
+<rect class="a bar0" x="62" y="265" width="56" height="65" style="fill:var(--cer);animation-name:grow;transform-box:fill-box;transform-origin:50% 100%;--d:.3s;--t:1s"/>
+<rect class="a" x="152" y="210" width="56" height="120" style="fill:var(--zn);animation-name:grow;transform-box:fill-box;transform-origin:50% 100%;--d:.8s;--t:1s"/>
+<rect class="a" x="242" y="95" width="56" height="235" style="fill:var(--al);stroke:var(--line);animation-name:grow;transform-box:fill-box;transform-origin:50% 100%;--d:1.3s;--t:1.2s"/>
+<g class="a" style="animation-name:fade;--d:1.6s"><text class="t" x="90" y="257" text-anchor="middle">6–7</text><text class="t" x="180" y="202" text-anchor="middle">≈12</text><text class="t" x="270" y="87" text-anchor="middle">23–24</text></g>
+<text class="t m" x="90" y="350" text-anchor="middle">керамогранит</text><text class="t m" x="180" y="350" text-anchor="middle">сталь</text><text class="t m" x="270" y="350" text-anchor="middle">алюминий</text>
+<text class="t a" x="580" y="92" text-anchor="middle" style="animation-name:fade;--d:2.4s">ΔL ≈ 2–2,5 мм на 3000 мм</text>
+<path id="pc" d="M410 190Q580 190 750 190" fill="none" style="stroke:var(--cer)" stroke-width="14"/>
+<path id="pa" d="M410 204Q580 204 750 204" fill="none" style="stroke:var(--al)" stroke-width="10"/>
+<text class="t m" x="410" y="170">керамогранит</text><text class="t m" x="750" y="240" text-anchor="end">алюминиевая основа</text>
+<rect x="420" y="296" width="320" height="10" rx="5" fill="url(#tg)"/><circle id="mk" cx="580" cy="301" r="9" style="fill:var(--ink);stroke:var(--stage)" stroke-width="3"/>
+<text class="t m" x="420" y="326">−35 °C</text><text class="t m" x="740" y="326" text-anchor="end">+70 °C</text><text class="t h" id="tt" x="580" y="352" text-anchor="middle">+17 °C</text>
+</svg>
+<div class="cap"><h2>Риск способа 3: тепловое коробление</h2><ul><li>Алюминий расширяется в 3,5–4 раза сильнее керамогранита, со сталью разница вдвое.</li><li>Разность деформаций нагружает клеевой слой и может дать серповидный прогиб.</li><li>Отчёт требует термоциклирования от −15 до +60 °C и деформационных швов на тыле.</li></ul></div>
+</section>
+
+<!-- 5 -->
+<section class="scene">
+<div class="bars">
+<div class="card"><h3>1. Герметик и шлифовка</h3>
+<div class="row">Скорость<i style="--w:15%;--d:.2s"></i></div><div class="row">Эстетика торца<i style="--w:60%;--d:.35s"></i></div><div class="row">Подрезка в размер<i style="--w:80%;--d:.5s"></i></div><div class="row">Термостойкость<i style="--w:100%;--d:.65s"></i></div>
+<p>Не для серии. Точечно: сложные углы и радиусные элементы.</p></div>
+<div class="card"><h3>2. Алюминиевое обрамление</h3>
+<div class="row">Скорость<i style="--w:100%;--d:.3s"></i></div><div class="row">Эстетика торца<i style="--w:40%;--d:.45s"></i></div><div class="row">Подрезка в размер<i style="--w:100%;--d:.6s"></i></div><div class="row">Термостойкость<i style="--w:100%;--d:.75s"></i></div>
+<p>База серии: первые этажи, цоколи, ветровые зоны.</p></div>
+<div class="card"><h3>3. Кассета AluRanger</h3>
+<div class="row">Скорость<i style="--w:60%;--d:.4s"></i></div><div class="row">Эстетика торца<i style="--w:100%;--d:.55s"></i></div><div class="row">Подрезка в размер<i style="--w:4%;--d:.7s"></i></div><div class="row">Термостойкость<i style="--w:40%;--d:.85s"></i></div>
+<p>Премиум со скрытым торцом: по КМД, без подрезки, после термоциклирования.</p></div>
+</div>
+<p class="note">Шкала условная: оценки выведены из сводной таблицы отчёта, это не измерения.</p>
+<div class="cap"><h2>Выводы отчёта</h2><p>Способ 2 подходит для серийной программы, способ 3 для премиум-проектов со скрытым торцом, способ 1 только для сложных сопряжений.</p></div>
+</section>
+
+</div>
+<div class="ctl">
+<button class="b" id="prev" aria-label="Назад">Назад</button>
+<button class="b" id="pp">Пауза</button>
+<button class="b" id="next" aria-label="Вперёд">Вперёд</button>
+<span id="cnt"></span>
+</div>
+</main>
+
+<script>
+(function(){
+var S=[].slice.call(document.querySelectorAll('.scene')),D=[7,9.5,9,9.5,10,9],i=0,timer,
+ reduced=matchMedia('(prefers-reduced-motion:reduce)').matches,playing=!reduced,
+ bar=document.getElementById('bar'),segs=[],raf=0,t0=0;
+S.forEach(function(_,k){var b=document.createElement('button');b.className='seg';b.setAttribute('aria-label','Сцена '+(k+1));b.innerHTML='<i></i>';b.onclick=function(){go(k)};bar.appendChild(b);segs.push(b)});
+var pc=document.getElementById('pc'),pa=document.getElementById('pa'),mk=document.getElementById('mk'),tt=document.getElementById('tt');
+function bend(k){var b=24*(2*k-1);
+ pc.setAttribute('d','M410 190Q580 '+(190+2*b)+' 750 190');
+ pa.setAttribute('d','M410 204Q580 '+(204+2*b)+' 750 204');
+ mk.setAttribute('cx',420+320*k);
+ var T=Math.round(-35+105*k);tt.textContent=(T>0?'+':T<0?'−':'')+Math.abs(T)+' °C';tt.setAttribute('x',420+320*k)}
+function loop(){
+ if(!document.body.classList.contains('paused')){var t=(performance.now()-t0)/1000;bend(.5+.5*Math.sin(t*2*Math.PI/8))}
+ raf=requestAnimationFrame(loop)}
+function therm(on){cancelAnimationFrame(raf);if(on){t0=performance.now();bend(.5);setTimeout(function(){if(i===4){cancelAnimationFrame(raf);t0=performance.now();loop()}},2600)}}
+function go(n){
+ i=(n+S.length)%S.length;
+ S.forEach(function(s,k){s.classList.remove('on');if(k===i){void s.offsetWidth;s.classList.add('on')}});
+ segs.forEach(function(g,k){g.classList.remove('cur');g.classList.toggle('done',k<i);if(k===i){void g.offsetWidth;g.style.setProperty('--dur',D[i]+'s');g.classList.add('cur')}});
+ document.getElementById('cnt').textContent=(i+1)+' из '+S.length;
+ clearTimeout(timer);
+ if(playing){document.body.classList.remove('paused');timer=setTimeout(function(){go(i+1)},D[i]*1000)}
+ therm(i===4)}
+document.getElementById('prev').onclick=function(){go(i-1)};
+document.getElementById('next').onclick=function(){go(i+1)};
+document.getElementById('pp').onclick=function(){
+ playing=!playing;this.textContent=playing?'Пауза':'Играть';
+ if(playing){go(i)}else{clearTimeout(timer);document.body.classList.add('paused')}};
+document.addEventListener('keydown',function(e){
+ if(e.key==='ArrowRight')go(i+1);else if(e.key==='ArrowLeft')go(i-1);
+ else if(e.key===' '&&e.target.tagName!=='BUTTON'){e.preventDefault();document.getElementById('pp').click()}});
+if(!playing)document.getElementById('pp').textContent='Играть';
+go(0);
+if(!playing)document.body.classList.add('paused');
+})();
+</script>
+</body>
+</html>

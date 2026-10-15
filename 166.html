@@ -1,0 +1,2243 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ОТЧЁТ №166 — Моушн-анализ торцов панелей «Уникор Керамик»</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        cad: {
+                            bg: '#070b12',
+                            panel: '#0e1524',
+                            border: '#1e293b',
+                            cyan: '#06b6d4',
+                            amber: '#f59e0b',
+                            emerald: '#10b981',
+                            crimson: '#ef4444',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+        body {
+            background-color: #070b12;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        /* Чертежная сетка CAD */
+        .cad-grid {
+            background-image: 
+                linear-gradient(to right, rgba(6, 182, 212, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(6, 182, 212, 0.05) 1px, transparent 1px),
+                linear-gradient(to right, rgba(6, 182, 212, 0.12) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(6, 182, 212, 0.12) 1px, transparent 1px);
+            background-size: 20px 20px, 20px 20px, 100px 100px, 100px 100px;
+        }
+        /* Кастомный скроллбар */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #070b12;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #06b6d4;
+        }
+        /* Стили ползунков */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            height: 6px;
+            border-radius: 999px;
+            background: #1e293b;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #06b6d4;
+            margin-top: -5px;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.8);
+            border: 2px solid #ffffff;
+            transition: transform 0.15s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+        .glow-cyan {
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.18);
+        }
+        .glow-amber {
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
+        }
+        .glow-crimson {
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.25);
+        }
+        .scene-tab.active {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(15, 23, 42, 0.9) 100%);
+            border-color: #06b6d4;
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.25);
+        }
+        @keyframes pulse-border {
+            0%, 100% { border-color: rgba(239, 68, 68, 0.5); }
+            50% { border-color: rgba(239, 68, 68, 1); }
+        }
+        .risk-pulse {
+            animation: pulse-border 2s infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-cad-bg text-slate-100">
+
+    <!-- ВЕРХНЯЯ ИНЖЕНЕРНАЯ ПАНЕЛЬ (HEADER) -->
+    <header class="border-b border-slate-800/80 bg-[#0a101d]/95 backdrop-blur-md sticky top-0 z-30 px-4 py-2.5">
+        <div class="max-w-[1800px] mx-auto flex flex-wrap items-center justify-between gap-3">
+            <!-- Лого и название отчёта -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-cyan-500/10 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-mono font-bold text-sm shadow-inner">
+                    №166
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[11px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+                            УНИКОР КЕРАМИК • R&D ОТЧЁТ
+                        </span>
+                        <span class="hidden sm:inline-block text-xs font-mono text-slate-400">
+                            Габарит: <strong class="text-slate-200">3000 × 1000 × 22 мм</strong>
+                        </span>
+                    </div>
+                    <h1 class="text-sm sm:text-base font-bold text-white tracking-tight mt-0.5">
+                        Сравнительный анализ способов герметизации и закрытия торцов композитных панелей
+                    </h1>
+                </div>
+            </div>
+
+            <!-- Правый блок управления презентацией -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button id="btnAutoTour" onclick="toggleAutoTour()" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-mono font-medium border border-amber-500/40 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 transition-all">
+                    <i data-lucide="presentation" class="w-3.5 h-3.5"></i>
+                    <span id="autoTourLabel">АВТО-ТУР: ВЫКЛ</span>
+                </button>
+                <button onclick="openReportModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-medium border border-slate-700 bg-slate-800/70 text-slate-200 hover:border-cyan-500/50 hover:text-cyan-300 transition-all">
+                    <i data-lucide="file-text" class="w-3.5 h-3.5 text-cyan-400"></i>
+                    <span>ТЕКСТ ОТЧЁТА</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- НАВИГАЦИЯ ПО 6 СЦЕНАМ МОУШН-ГРАФИКИ -->
+    <nav class="bg-[#090e1a] border-b border-slate-800/80 px-4 py-2 overflow-x-auto">
+        <div class="max-w-[1800px] mx-auto flex items-center gap-2 min-w-max">
+            <button onclick="selectScene(0)" id="tab-0" class="scene-tab active flex items-center gap-2.5 px-3.5 py-2 rounded-lg border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-slate-200 transition-all text-left">
+                <span class="font-mono text-xs font-bold text-cyan-400">01</span>
+                <div>
+                    <div class="text-xs font-semibold leading-none">Взрыв-схема панели</div>
+                    <div class="text-[10px] font-mono text-slate-400 mt-1">Структура 22 мм и риски среды</div>
+                </div>
+            </button>
+
+            <button onclick="selectScene(1)" id="tab-1" class="scene-tab flex items-center gap-2.5 px-3.5 py-2 rounded-lg border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-slate-200 transition-all text-left">
+                <span class="font-mono text-xs font-bold text-amber-400">02</span>
+                <div>
+                    <div class="text-xs font-semibold leading-none">Способ 1: Puraflex 9270</div>
+                    <div class="text-[10px] font-mono text-slate-400 mt-1">ПУ-герметик + шлифовка УШМ</div>
+                </div>
+            </button>
+
+            <button onclick="selectScene(2)" id="tab-2" class="scene-tab flex items-center gap-2.5 px-3.5 py-2 rounded-lg border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-slate-200 transition-all text-left">
+                <span class="font-mono text-xs font-bold text-emerald-400">03</span>
+                <div>
+                    <div class="text-xs font-semibold leading-none">Способ 2: Al-обрамление</div>
+                    <div class="text-[10px] font-mono text-slate-400 mt-1">Рамка заподлицо на саморезах</div>
+                </div>
+            </button>
+
+            <button onclick="selectScene(3)" id="tab-3" class="scene-tab flex items-center gap-2.5 px-3.5 py-2 rounded-lg border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-slate-200 transition-all text-left">
+                <span class="font-mono text-xs font-bold text-cyan-400">04</span>
+                <div>
+                    <div class="text-xs font-semibold leading-none">Способ 3: Кассета AluRanger</div>
+                    <div class="text-[10px] font-mono text-slate-400 mt-1">ЧПУ-фрезеровка + подгиб 60°/90°</div>
+                </div>
+            </button>
+
+            <button onclick="selectScene(4)" id="tab-4" class="scene-tab flex items-center gap-2.5 px-3.5 py-2 rounded-lg border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-slate-200 transition-all text-left">
+                <span class="font-mono text-xs font-bold text-rose-400">05</span>
+                <div>
+                    <div class="text-xs font-semibold leading-none">Термо-симулятор КТР</div>
+                    <div class="text-[10px] font-mono text-slate-400 mt-1">Биметаллический изгиб (3000 мм)</div>
+                </div>
+            </button>
+
+            <button onclick="selectScene(5)" id="tab-5" class="scene-tab flex items-center gap-2.5 px-3.5 py-2 rounded-lg border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-slate-200 transition-all text-left">
+                <span class="font-mono text-xs font-bold text-purple-400">06</span>
+                <div>
+                    <div class="text-xs font-semibold leading-none">Сводная матрица и выводы</div>
+                    <div class="text-[10px] font-mono text-slate-400 mt-1">7 критериев и рекомендации КМД</div>
+                </div>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ОСНОВНАЯ РАБОЧАЯ ОБЛАСТЬ: CANVAS СЦЕНА + ПРАВАЯ ИНЖЕНЕРНАЯ ПАНЕЛЬ -->
+    <main class="flex-1 max-w-[1800px] w-full mx-auto p-3 sm:p-4 grid grid-cols-1 lg:grid-cols-12 gap-4">
+        
+        <!-- ЛЕВАЯ/ЦЕНТРАЛЬНАЯ КОЛОНКА: ИНТЕРАКТИВНЫЙ ХОЛСТ И ТАЙМЛАЙН (8 КОЛОНОК) -->
+        <section class="lg:col-span-8 flex flex-col gap-3">
+            
+            <!-- КОНТЕЙНЕР ХОЛСТА С HUD-ТЕЛЕМЕТРИЕЙ -->
+            <div class="relative flex-1 min-h-[420px] sm:min-h-[500px] rounded-xl border border-slate-800 bg-[#080d18] cad-grid overflow-hidden flex flex-col justify-between shadow-2xl">
+                
+                <!-- Верхний HUD оверлей на холсте -->
+                <div class="relative z-10 p-3 sm:p-4 flex flex-wrap items-start justify-between gap-2 pointer-events-none">
+                    <div class="bg-slate-950/85 backdrop-blur-md border border-slate-800/90 rounded-lg px-3 py-2 pointer-events-auto">
+                        <div class="flex items-center gap-2">
+                            <span id="hudSceneCode" class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                            <span id="hudSceneTitle" class="text-xs sm:text-sm font-bold text-white tracking-wide">
+                                СЦЕНА 01: ВЗРЫВ-СХЕМА ПАНЕЛИ «УНИКОР КЕРАМИК»
+                            </span>
+                        </div>
+                        <p id="hudStepSubtitle" class="text-[11px] font-mono text-cyan-300 mt-0.5">
+                            Этап 1/3: Архитектура многослойного композита (22 мм)
+                        </p>
+                    </div>
+
+                    <!-- Телеметрия в реальном времени -->
+                    <div id="hudTelemetry" class="bg-slate-950/85 backdrop-blur-md border border-slate-800/90 rounded-lg px-3 py-2 font-mono text-[11px] flex items-center gap-4 pointer-events-auto">
+                        <div>
+                            <span class="text-slate-400 block text-[9px]">ТОЛЩИНА УЗЛА</span>
+                            <span id="telemetryVal1" class="text-cyan-400 font-bold">22.0 мм</span>
+                        </div>
+                        <div class="h-6 w-px bg-slate-800"></div>
+                        <div>
+                            <span class="text-slate-400 block text-[9px]">ТЕХ. ПАРАМЕТР</span>
+                            <span id="telemetryVal2" class="text-amber-400 font-bold">КТР: 6.5 / 12.0</span>
+                        </div>
+                        <div class="h-6 w-px bg-slate-800 hidden sm:block"></div>
+                        <div class="hidden sm:block">
+                            <span class="text-slate-400 block text-[9px]">СТАТУС УЗЛА</span>
+                            <span id="telemetryVal3" class="text-emerald-400 font-bold">НОРМА</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ГЛАВНЫЙ HTML5 CANVAS -->
+                <div id="canvasWrapper" class="absolute inset-0 w-full h-full">
+                    <canvas id="motionCanvas" class="w-full h-full block"></canvas>
+                </div>
+
+                <!-- Нижний интерактивный бар параметров конкретной сцены (Поверх холста) -->
+                <div class="relative z-10 p-3 sm:p-4 flex flex-wrap items-center justify-between gap-2 bg-gradient-to-t from-slate-950/95 via-slate-950/70 to-transparent">
+                    <!-- Переключатели шагов внутри сцены -->
+                    <div id="sceneStepButtons" class="flex flex-wrap items-center gap-1.5">
+                        <!-- Заполняется динамически JS -->
+                    </div>
+
+                    <!-- Специальные интерактивные тумблеры сцены (риски, скос 60°, температура) -->
+                    <div id="sceneInteractiveControls" class="flex flex-wrap items-center gap-2">
+                        <!-- Заполняется динамически JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ПЛЕЕР ТАЙМЛАЙНА МОУШН-ГРАФИКИ -->
+            <div class="rounded-xl border border-slate-800 bg-[#0c1322] p-3 flex flex-col sm:flex-row items-center gap-3 shadow-lg">
+                <!-- Кнопки управления воспроизведением -->
+                <div class="flex items-center gap-1.5">
+                    <button onclick="prevScene()" title="Предыдущая сцена" class="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 transition">
+                        <i data-lucide="skip-back" class="w-4 h-4"></i>
+                    </button>
+                    <button id="btnPlayPause" onclick="togglePlay()" class="flex items-center justify-center w-10 h-10 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold shadow-lg shadow-cyan-500/25 transition">
+                        <i id="iconPlayPause" data-lucide="pause" class="w-5 h-5"></i>
+                    </button>
+                    <button onclick="restartScene()" title="Сначала сцены" class="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 transition">
+                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="nextScene()" title="Следующая сцена" class="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 transition">
+                        <i data-lucide="skip-forward" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <!-- Полоса прокрутки таймлайна (Scrubber) -->
+                <div class="flex-1 w-full flex flex-col gap-1">
+                    <div class="flex justify-between text-[11px] font-mono text-slate-400">
+                        <span id="timelinePhaseLabel" class="text-cyan-400 font-medium">Фаза анимации: Активна</span>
+                        <span>Таймкод: <strong id="timelineTimecode" class="text-slate-200">00:04.2 / 00:15.0</strong> (<span id="timelinePercent">28%</span>)</span>
+                    </div>
+                    <div class="relative flex items-center">
+                        <input id="timelineScrubber" type="range" min="0" max="1000" value="0" oninput="onScrub(this.value)" class="w-full z-10">
+                    </div>
+                </div>
+
+                <!-- Скорость анимации -->
+                <div class="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-lg p-1 font-mono text-xs">
+                    <button onclick="setSpeed(0.5)" id="spd-0.5" class="px-2 py-1 rounded text-slate-400 hover:text-white transition">0.5x</button>
+                    <button onclick="setSpeed(1)" id="spd-1" class="px-2 py-1 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-bold transition">1.0x</button>
+                    <button onclick="setSpeed(1.5)" id="spd-1.5" class="px-2 py-1 rounded text-slate-400 hover:text-white transition">1.5x</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ПРАВАЯ КОЛОНКА: ИНЖЕНЕРНЫЙ ИНСПЕКТОР ОТЧЁТА №166 (4 КОЛОНКИ) -->
+        <aside class="lg:col-span-4 flex flex-col gap-3">
+            
+            <!-- Карточка описания технологического процесса -->
+            <div class="rounded-xl border border-slate-800 bg-[#0c1322] p-4 flex flex-col gap-3.5 shadow-xl flex-1">
+                <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                    <div>
+                        <span id="inspectorBadge" class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+                            РАЗДЕЛ 1 ОТЧЁТА
+                        </span>
+                        <h2 id="inspectorTitle" class="text-base font-bold text-white mt-1">
+                            Конструкция панели «Уникор Керамик»
+                        </h2>
+                    </div>
+                    <div id="inspectorScoreBadge" class="text-right font-mono">
+                        <span class="text-[10px] text-slate-400 block">ИНДЕКС СЕРИЙНОСТИ</span>
+                        <span id="inspectorScoreVal" class="text-sm font-bold text-cyan-400">БАЗОВЫЙ УЗЕЛ</span>
+                    </div>
+                </div>
+
+                <!-- Описание процесса -->
+                <div class="bg-slate-900/70 border border-slate-800/90 rounded-lg p-3">
+                    <div class="text-[11px] font-mono text-slate-400 uppercase mb-1 flex items-center gap-1.5">
+                        <i data-lucide="cpu" class="w-3.5 h-3.5 text-cyan-400"></i>
+                        <span>Технологический регламент</span>
+                    </div>
+                    <p id="inspectorDescription" class="text-xs text-slate-300 leading-relaxed">
+                        Керамическая сотовая панель максимального типоразмера 3000×1000×22 мм состоит из лицевого керамогранита, алюминиевого сотового заполнителя и тыльной обшивки. Защита торца от влаги, грязи и механических нагрузок определяет долговечность навесного фасада.
+                    </p>
+                </div>
+
+                <!-- Индикаторы ключевых параметров (Метрики) -->
+                <div class="space-y-2" id="inspectorMetrics">
+                    <!-- Динамические прогресс-бары метрик -->
+                </div>
+
+                <!-- Преимущества (Зеленый блок) -->
+                <div class="rounded-lg border border-emerald-500/30 bg-emerald-950/15 p-3">
+                    <div class="flex items-center gap-1.5 text-xs font-bold text-emerald-400 mb-2">
+                        <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                        <span>Преимущества решения</span>
+                    </div>
+                    <ul id="inspectorPros" class="space-y-1.5 text-xs text-slate-300">
+                        <!-- Заполняется JS -->
+                    </ul>
+                </div>
+
+                <!-- Недостатки и технологические риски (Красный/Янтарный блок) -->
+                <div class="rounded-lg border border-rose-500/30 bg-rose-950/15 p-3">
+                    <div class="flex items-center gap-1.5 text-xs font-bold text-rose-400 mb-2">
+                        <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                        <span>Недостатки и технологические риски</span>
+                    </div>
+                    <ul id="inspectorCons" class="space-y-1.5 text-xs text-slate-300">
+                        <!-- Заполняется JS -->
+                    </ul>
+                </div>
+
+                <!-- Официальный вердикт из Раздела 4 Отчёта №166 -->
+                <div id="inspectorVerdictBox" class="mt-auto rounded-lg border border-cyan-500/40 bg-cyan-950/20 p-3">
+                    <div class="flex items-center gap-1.5 text-[11px] font-mono font-bold text-cyan-300 uppercase mb-1">
+                        <i data-lucide="award" class="w-4 h-4"></i>
+                        <span>Заключение для производства (Отчёт №166)</span>
+                    </div>
+                    <p id="inspectorVerdict" class="text-xs text-slate-200 leading-relaxed font-medium">
+                        Выберите технологический способ на панели выше или запустите Авто-тур для пошагового сравнения трёх методов закрытия торцов.
+                    </p>
+                </div>
+            </div>
+
+        </aside>
+    </main>
+
+    <!-- МОДАЛЬНОЕ ОКНО: ПОЛНЫЙ ТЕКСТ И СВОДНАЯ ТАБЛИЦА ОТЧЁТА №166 -->
+    <div id="reportModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bg-[#0c1322] border border-slate-700 rounded-2xl max-w-5xl w-full max-h-[88vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="px-2.5 py-1 rounded bg-cyan-500/20 text-cyan-300 font-mono text-xs font-bold border border-cyan-500/30">ДОКУМЕНТ №166</span>
+                    <h3 class="text-base sm:text-lg font-bold text-white">Сводная таблица и выводы отчёта «Уникор Керамик»</h3>
+                </div>
+                <button onclick="closeReportModal()" class="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-6 text-xs sm:text-sm text-slate-300 leading-relaxed">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 font-mono text-xs">
+                    <div class="p-3 rounded-lg bg-slate-900 border border-slate-800">
+                        <span class="text-slate-400 block">ОБЪЕКТ ИСПЫТАНИЙ:</span>
+                        <strong class="text-white">Керамическая сотовая панель «Уникор Керамик»</strong>
+                    </div>
+                    <div class="p-3 rounded-lg bg-slate-900 border border-slate-800">
+                        <span class="text-slate-400 block">СТРУКТУРА СЭНДВИЧА:</span>
+                        <strong class="text-cyan-300">Керамогранит + Al-сота + Тыльная обшивка</strong>
+                    </div>
+                    <div class="p-3 rounded-lg bg-slate-900 border border-slate-800">
+                        <span class="text-slate-400 block">МАКСИМАЛЬНЫЙ ТИПОРАЗМЕР:</span>
+                        <strong class="text-amber-300">3000 × 1000 × 22 мм</strong>
+                    </div>
+                </div>
+
+                <!-- Сравнительная таблица из документа -->
+                <div class="overflow-x-auto rounded-xl border border-slate-800">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-900/90 text-slate-200 font-mono border-b border-slate-800">
+                                <th class="p-3">Критерий оценки</th>
+                                <th class="p-3 text-amber-300">Способ 1: Герметик Puraflex 9270 + шлифовка УШМ</th>
+                                <th class="p-3 text-emerald-300">Способ 2: Алюминиевое обрамление на саморезах</th>
+                                <th class="p-3 text-cyan-300">Способ 3: ЧПУ-подгиб кассеты (AluRanger) + вклейка</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800/70 bg-slate-950/40">
+                            <tr>
+                                <td class="p-3 font-semibold text-white">Эстетика торца</td>
+                                <td class="p-3">Аккуратная, матовая, в плоскости панели</td>
+                                <td class="p-3">Видимый металлический кант (требует покраски)</td>
+                                <td class="p-3 text-emerald-300 font-medium">Идеальная (особенно при фаске 60°, шов скрыт)</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-semibold text-white">Количество этапов склейки</td>
+                                <td class="p-3">1 этап</td>
+                                <td class="p-3">1 этап</td>
+                                <td class="p-3 text-amber-300">2 этапа (сота, затем керамика)</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-semibold text-white">Трудоёмкость и скорость</td>
+                                <td class="p-3 text-rose-300">Очень низкая скорость (сушка до 2 сут.), грязная шлифовка УШМ</td>
+                                <td class="p-3 text-emerald-300 font-medium">Высокая скорость «сухого» монтажа</td>
+                                <td class="p-3">Средняя (зависит от загрузки AluRanger и пресса)</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-semibold text-white">Сложность подгонки / допуски</td>
+                                <td class="p-3">Ручная доводка по месту</td>
+                                <td class="p-3 text-amber-300">Высокие требования к зазорам, клею и стыкам</td>
+                                <td class="p-3 text-emerald-300">Задаётся управляющей программой ЧПУ</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-semibold text-white">Возможность подрезки в размер</td>
+                                <td class="p-3">Есть (на заводе, до герметизации)</td>
+                                <td class="p-3 text-emerald-300 font-medium">Есть (на заводе на гидроабразиве с установкой планки)</td>
+                                <td class="p-3 text-rose-300">Отсутствует (только фиксированный проектный размер КМД)</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-semibold text-white">Термодеформационная стойкость</td>
+                                <td class="p-3 text-emerald-300">Высокая (оцинкованный тыл + эластичный торец)</td>
+                                <td class="p-3 text-emerald-300">Высокая (оцинкованный стальной тыл)</td>
+                                <td class="p-3 text-rose-300">Повышенный риск коробления (Δα керамогранит/алюминий в 3.5–4 раза)</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-semibold text-white">Себестоимость по материалам</td>
+                                <td class="p-3 text-rose-300">Высокая (большой расход полиуретана)</td>
+                                <td class="p-3">Средняя (стоимость профиля + покраска)</td>
+                                <td class="p-3">Средняя (2 алюминиевых листа вместо 1 оцинкованного)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Обязательные технические ограничения -->
+                <div class="p-4 rounded-xl border border-amber-500/40 bg-amber-950/20 space-y-2">
+                    <h4 class="font-bold text-amber-300 flex items-center gap-2">
+                        <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                        <span>Обязательные технические ограничения для Способа 3 (Кассета AluRanger):</span>
+                    </h4>
+                    <ol class="list-decimal list-inside space-y-1 text-xs sm:text-sm text-slate-200">
+                        <li>Панели согласовывать строго по рабочей документации (<strong>КМД</strong>) без права подрезки на строительной площадке.</li>
+                        <li>Провести стендовые испытания на <strong>термоциклирование (-15°C ... +60°C)</strong> на длине 3000 мм для подтверждения отсутствия критических прогибов (ΔL ≈ 2–2,5 мм).</li>
+                        <li>На тыльной стороне панелей выполнить <strong>деформационные швы</strong> для уменьшения риска биметаллического коробления.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ГЛАВНЫЙ СКРИПТ АНИМАЦИИ, ФИЗИКИ И УПРАВЛЕНИЯ СЦЕНАМИ -->
+    <script>
+        // Инициализация иконок Lucide
+        lucide.createIcons();
+
+        // ============================================================================
+        // 1. БАЗА ДАННЫХ СЦЕН ПО МАТЕРИАЛАМ ОТЧЁТА №166
+        // ============================================================================
+        const SCENES_DATA = [
+            {
+                id: 0,
+                code: "СЦЕНА 01 // АРХИТЕКТУРА ПАНЕЛИ",
+                title: "Взрыв-схема панели «Уникор Керамик» (3000×1000×22 мм)",
+                badge: "РАЗДЕЛ 1 • ВВЕДЕНИЕ И ЦЕЛЬ ИСПЫТАНИЙ",
+                scoreLabel: "БАЗОВЫЙ ОБЪЕКТ",
+                description: "Керамическая сотовая панель состоит из лицевого керамогранита, двухкомпонентного полиуретанового клея, алюминиевого сотового ядра и тыльной обшивки (оцинкованная сталь или алюминий). Открытый торец уязвим к проникновению влаги, замерзанию воды в сотах и расслоению.",
+                steps: [
+                    { label: "1. Структура 22 мм", range: [0, 0.35], sub: "Послойная взрыв-схема: Керамогранит + Al-сота + Тыльный лист" },
+                    { label: "2. Агрессия внешней среды", range: [0.35, 0.72], sub: "Проникновение атмосферной влаги, грязи и ветровой нагрузки в открытые соты" },
+                    { label: "3. Зона защиты торца", range: [0.72, 1.0], sub: "Обзор 3-х испытуемых технологических решений герметизации" }
+                ],
+                metrics: [
+                    { name: "Габарит панели (Д×Ш×Т)", val: "3000 × 1000 × 22 мм", pct: 100, color: "bg-cyan-400" },
+                    { name: "Критичность защиты торца", val: "100% (Ключевой фактор ресурса)", pct: 100, color: "bg-amber-400" },
+                    { name: "Апробировано технологий", val: "3 промышленных способа", pct: 75, color: "bg-emerald-400" }
+                ],
+                pros: [
+                    "Высокая жесткость на изгиб при малом весе благодаря алюминиевому сотовому ядру.",
+                    "Крупноформатный размер до 3000×1000 мм для скоростного монтажа фасадов.",
+                    "Стойкость лицевого керамогранита к ультрафиолету, морозу и абразивному износу."
+                ],
+                cons: [
+                    "Незащищенный сотовый заполнитель накапливает конденсат и атмосферную влагу.",
+                    "Замерзание воды внутри ячеек разрывает клеевые связи при зимних циклах.",
+                    "Разница коэффициентов теплового расширения (КТР) слоев требует точного расчета."
+                ],
+                verdict: "Цель испытаний №166 — выбрать оптимальную технологию закрытия торца для базовой серии, сложных доборов и объектов премиум-класса."
+            },
+            {
+                id: 1,
+                code: "СЦЕНА 02 // СПОСОБ №1",
+                title: "Способ 1: Полиуретановый герметик Puraflex 9270 + шлифовка УШМ",
+                badge: "СПОСОБ 1 • МОКРЫЙ ПРОЦЕСС",
+                scoreLabel: "НЕ ДЛЯ СЕРИИ",
+                description: "Форматированная панель герметизируется по периметру полиуретановым составом Puraflex 9270. После выдержки до полной полимеризации (скорость 2,5–3,5 мм/сутки, пауза до 48 часов) излишки сошлифовываются УШМ заподлицо с керамогранитом.",
+                steps: [
+                    { label: "1. Экструзия Puraflex 9270", range: [0, 0.33], sub: "Ручное глубинное заполнение открытых сот полиуретановым герметиком" },
+                    { label: "2. Полимеризация 48 ч", range: [0.33, 0.67], sub: "Отверждение влагой воздуха (2,5–3,5 мм/сутки) и накопление полуфабрикатов" },
+                    { label: "3. Шлифовка УШМ и риски", range: [0.67, 1.0], sub: "Снятие наплыва абразивным кругом, вязкая пыль и риск скола керамики" }
+                ],
+                metrics: [
+                    { name: "Скорость производственного цикла", val: "Низкая (пауза до 48 часов)", pct: 22, color: "bg-rose-500" },
+                    { name: "Эластичность и гидроизоляция", val: "Высокая (монолитный ПУ-шов)", pct: 92, color: "bg-emerald-400" },
+                    { name: "Безопасность для кромки керамики", val: "Высокий риск сколов и прижогов УШМ", pct: 30, color: "bg-amber-400" }
+                ],
+                pros: [
+                    "Лаконичный монолитный матовый торец без выступающих нащельников и метизов.",
+                    "Высокая эластичность ПУ-шва компенсирует микроподвижки при ветровых нагрузках.",
+                    "Полная гидроизоляция сотового сердечника и отсутствие электрохимической коррозии."
+                ],
+                cons: [
+                    "Длительный цикл: полимеризация ~2,5–3,5 мм/сутки (пауза до 2 суток, затоваривание цеха).",
+                    "Вредный ручной труд: шлифовка УШМ даёт обильную вязкую пыль и засаливает круги.",
+                    "Риск брака керамогранита: касание диском УШМ лицевой кромки вызывает микросколы и прижоги."
+                ],
+                verdict: "НЕ РЕКОМЕНДУЕТСЯ для серийного выпуска панелей 3000×1000 мм. Допустимо только точечно для сложных угловых сопряжений или радиусных деталей."
+            },
+            {
+                id: 2,
+                code: "СЦЕНА 03 // СПОСОБ №2",
+                title: "Способ 2: Монтаж алюминиевого обрамления заподлицо на саморезах",
+                badge: "СПОСОБ 2 • БАЗОВАЯ СЕРИЯ",
+                scoreLabel: "ОПТИМАЛЬНО В СЕРИЮ",
+                description: "Стандартная панель (керамогранит + Al-сота + оцинкованная сталь) при необходимости кроится на гидроабразивном станке. На открытый торец заподлицо с лицевой гранью устанавливается окрашенный алюминиевый профиль и крепится саморезами к тыльному листу.",
+                steps: [
+                    { label: "1. Гидроабразив (ГАР)", range: [0, 0.33], sub: "Чистовой раскрой склеенной панели струей воды с абразивом в любой габарит" },
+                    { label: "2. Порошковая окраска", range: [0.33, 0.66], sub: "Полимерно-порошковая покраска алюминиевого профиля в тон керамогранита" },
+                    { label: "3. Сборка на саморезах", range: [0.66, 1.0], sub: "Сухой монтаж профиля заподлицо и механическая фиксация к оцинкованному тылу" }
+                ],
+                metrics: [
+                    { name: "Скорость монтажа и готовность", val: "Высокая («Сухой» процесс без сушки)", pct: 94, color: "bg-emerald-400" },
+                    { name: "Ремонтопригодность и раскрой", val: "100% (Любые доборы на ГАР)", pct: 98, color: "bg-cyan-400" },
+                    { name: "Чувствительность к допускам клея", val: "Требует контроля ступенек", pct: 55, color: "bg-amber-400" }
+                ],
+                pros: [
+                    "«Сухой» быстрый монтаж: нет ожидания полимеризации, упаковка сразу после сборки рамки.",
+                    "Высокая ремонтопригодность и гибкость раскроя на гидроабразиве в нестандартные размеры.",
+                    "Высокая термодеформационная стойкость за счёт тыльного листа из оцинкованной стали."
+                ],
+                cons: [
+                    "Необходимость полимерно-порошковой окраски профиля в тон плиты (доп. логистика).",
+                    "Высокие требования к геометрии: разнотолщинность клея или плиты даёт ступеньку или щель в углах."
+                ],
+                verdict: "ОПТИМАЛЕН для базовой серийной программы и фасадных зон с повышенными эксплуатационными нагрузками (первые этажи, цоколи, ветровые зоны)."
+            },
+            {
+                id: 3,
+                code: "СЦЕНА 04 // СПОСОБ №3",
+                title: "Способ 3: Кассетная основа с ЧПУ AluRanger и двойным подгибом",
+                badge: "СПОСОБ 3 • АРХИТЕКТУРНЫЙ ПРЕМИУМ",
+                scoreLabel: "ПРЕМИУМ СЕГМЕНТ",
+                description: "Цельноалюминиевая сотовая панель (Al + сота + Al) фрезеруется по периметру на центре AluRanger с выборкой сот и формированием закрытого торца двойным подгибом (под 90° или со скосом 60° внутрь). Вторым этапом прессования наклеивается керамогранит.",
+                steps: [
+                    { label: "1. Прессование №1 (Основа)", range: [0, 0.25], sub: "Склейка плоской цельноалюминиевой сотовой заготовки (Al + сота + Al)" },
+                    { label: "2. Фрезеровка ЧПУ AluRanger", range: [0.25, 0.52], sub: "Выборка паза в сотах по периметру и подсечка кромок дисковой/концевой фрезой" },
+                    { label: "3. Двойной подгиб кассеты", range: [0.52, 0.76], sub: "Формование замкнутого торца (90° или скос 60°) с подгибом полки на тыл" },
+                    { label: "4. Прессование №2 (Керамика)", range: [0.76, 1.0], sub: "Наклейка лицевого керамогранита на жесткую кассету — эффект парящей плиты" }
+                ],
+                metrics: [
+                    { name: "Архитектурная эстетика торца", val: "Эталонная (Теневой шов 60°)", pct: 100, color: "bg-cyan-400" },
+                    { name: "Точность геометрии (ЧПУ AluRanger)", val: "Высокая (Исключен чел. фактор)", pct: 96, color: "bg-emerald-400" },
+                    { name: "Возможность подрезки на объекте", val: "0% (Только проектный размер КМД)", pct: 10, color: "bg-rose-500" }
+                ],
+                pros: [
+                    "Премиальная эстетика: скрытый крепеж, скос 60° уводит торец в теневой шов («парящая плита»).",
+                    "Идеальная повторяемость и стабильная геометрия благодаря ЧПУ-центру AluRanger.",
+                    "Однородность алюминиевой кассеты исключает контактную пару «цинк–алюминий»."
+                ],
+                cons: [
+                    "Двухстадийная склейка (2 прессования) разрывает поток и нагружает прессовый участок.",
+                    "Нулевая ремонтопригодность по габаритам: подрезка на ГАР разрушит замковый подгиб.",
+                    "Риск биметаллического коробления из-за разницы КТР керамогранита и алюминия в 3,5–4 раза."
+                ],
+                verdict: "РЕКОМЕНДУЕТСЯ для проектов премиум-сегмента со скрытым торцом 60°. Строго по КМД без подрезки, с обязательным термоциклированием и деформационными швами."
+            },
+            {
+                id: 4,
+                code: "СЦЕНА 05 // ТЕРМОМЕХАНИКА КТР",
+                title: "Интерактивный Термо-Симулятор: Эффект биметаллической пластины",
+                badge: "ФИЗИЧЕСКИЙ АНАЛИЗ • ДЛИНА 3000 ММ",
+                scoreLabel: "КРИТИЧЕСКИЙ ФАКТОР",
+                description: "Сравнение линейных температурных деформаций (ΔL) на длине панели 3000 мм при перепадах от -35°C до +70°C. В Способе 3 алюминиевая кассета расширяется и сжимается в 3,5–4 раза сильнее керамогранита, создавая сдвиговое напряжение и серповидный прогиб.",
+                steps: [
+                    { label: "1. Нагрев фасада (+60...+70°C)", range: [0, 0.35], sub: "Удлинение алюминия на 2,2–2,5 мм больше керамогранита → выгибание наружу" },
+                    { label: "2. Зимний холод (-35°C)", range: [0.35, 0.70], sub: "Сжатие алюминиевого тыла → знакопеременный сдвиг в клеевом слое" },
+                    { label: "3. Деформационные швы", range: [0.70, 1.0], sub: "Снятие пиковых напряжений компенсационными прорезями на тыльной стороне" }
+                ],
+                metrics: [
+                    { name: "КТР Керамогранита (α₁)", val: "6,5 × 10⁻⁶ K⁻¹", pct: 28, color: "bg-slate-400" },
+                    { name: "КТР Оцинкованной стали (α₂)", val: "12,0 × 10⁻⁶ K⁻¹ (разница ×1.85)", pct: 50, color: "bg-emerald-400" },
+                    { name: "КТР Алюминия кассеты (α₃)", val: "23,5 × 10⁻⁶ K⁻¹ (разница ×3.6)", pct: 96, color: "bg-rose-500" }
+                ],
+                pros: [
+                    "Схема со стальным оцинкованным тылом (Способы 1 и 2) имеет двукратную разницу КТР и минимальный прогиб.",
+                    "Устройство деформационных швов на тыльной стороне кассеты снижает жесткость рубашки на сдвиг."
+                ],
+                cons: [
+                    "На длине 3000 мм при ΔT = 50°C разность удлинений ΔL между керамикой и алюминием достигает 2,0–2,5 мм.",
+                    "Высокие касательные напряжения τ в клеевом слое без компенсации ведут к «эффекту биметаллической пластины»."
+                ],
+                verdict: "Обязательно провести стендовые испытания на термоциклирование (-15°C ... +60°C) и ввести деформационные швы на тыльной стороне кассет."
+            },
+            {
+                id: 5,
+                code: "СЦЕНА 06 // СВОДНАЯ МАТРИЦА",
+                title: "Сводная сравнительная матрица (7 критериев) и рекомендации КМД",
+                badge: "ИТОГИ ОТЧЁТА №166 • РЕШЕНИЯ",
+                scoreLabel: "МАТРИЦА ВЫБОРА",
+                description: "Инженерное сопоставление всех трёх технологий по 7 базовым параметрам из Раздела 3 Отчёта №166: эстетика, этапы прессования, скорость, допуски, подрезка в размер, термостойкость и себестоимость материалов.",
+                steps: [
+                    { label: "1. Профиль 7 критериев", range: [0, 0.35], sub: "Многоосевая диаграмма технологических показателей Способов 1, 2 и 3" },
+                    { label: "2. Карта применимости", range: [0.35, 0.70], sub: "Распределение технологий по типам фасадных зон и серийности" },
+                    { label: "3. Регламент внедрения", range: [0.70, 1.0], sub: "Итоговые директивы для конструкторского отдела (КМД) и цеха" }
+                ],
+                metrics: [
+                    { name: "Базовая серия и цоколи", val: "Способ 2 (Алюминиевый профиль)", pct: 95, color: "bg-emerald-400" },
+                    { name: "Премиум-фасады (Скрытый шов)", val: "Способ 3 (Кассета AluRanger 60°)", pct: 92, color: "bg-cyan-400" },
+                    { name: "Сложные радиусы и углы (Точечно)", val: "Способ 1 (Герметик Puraflex 9270)", pct: 40, color: "bg-amber-400" }
+                ],
+                pros: [
+                    "Четкое разделение продуктовой линейки «Уникор Керамик» на Серийную (Способ 2) и Премиальную (Способ 3).",
+                    "Исключение нетехнологичной ручной шлифовки полиуретана из массового производства."
+                ],
+                cons: [
+                    "Для Способа 3 требуется строгая дисциплина проектирования КМД без подрезки на стройплощадке.",
+                    "Для Способа 2 необходим входной контроль разнотолщинности плиты и калибровка клеенанесения."
+                ],
+                verdict: "Утвердить Способ 2 как базовый серийный стандарт, Способ 3 (скос 60°) — для премиум-объектов после термоциклирования, Способ 1 — только для штучных нестандартов."
+            }
+        ];
+
+        // ============================================================================
+        // 2. ГЛОБАЛЬНОЕ СОСТОЯНИЕ ПЛЕЕРА И СИМУЛЯТОРОВ
+        // ============================================================================
+        const state = {
+            currentScene: 0,
+            progress: 0,          // 0.0 -> 1.0 внутри текущей сцены
+            sceneDuration: 16.0,  // базовая длительность сцены в секундах
+            isPlaying: true,
+            speed: 1.0,
+            autoTour: false,
+            lastTimestamp: performance.now(),
+
+            // Интерактивные параметры сцен
+            scene0ExplodeBoost: 0,      // доп. управление взрыв-схемой
+            scene1GrinderRisk: true,    // демонстрация касания УШМ кромки керамогранита
+            scene2GlueDefect: false,    // симуляция ступеньки из-за разнотолщинности клея
+            scene3Bevel60: true,        // true = скос 60° (теневой шов), false = прямой угол 90°
+            scene4Temp: 65,             // температура в Термо-Симуляторе (-35 ... +70 °C)
+            scene4AutoCycle: true,      // авто-термоциклирование -15°C ... +60°C
+            scene4ExpansionJoints: false,// деформационные швы на тыльной стороне
+            scene5SelectedCriterion: 0, // выбранный критерий в матрице (0..6)
+
+            // Массивы частиц для процедурной графики
+            particles: []
+        };
+
+        // Инициализация частиц для искр, гидроабразива, пыли УШМ и влаги
+        for (let i = 0; i < 90; i++) {
+            state.particles.push({
+                x: Math.random(),
+                y: Math.random(),
+                vx: (Math.random() - 0.5) * 2,
+                vy: (Math.random() - 0.5) * 2,
+                size: 1.5 + Math.random() * 3,
+                alpha: Math.random(),
+                seed: Math.random() * 100
+            });
+        }
+
+        const canvas = document.getElementById('motionCanvas');
+        const ctx = canvas.getContext('2d');
+        let cw = 800, ch = 500, dpr = 1;
+
+        function resizeCanvas() {
+            const wrapper = document.getElementById('canvasWrapper');
+            dpr = Math.min(window.devicePixelRatio || 1, 2);
+            cw = wrapper.clientWidth;
+            ch = wrapper.clientHeight;
+            canvas.width = cw * dpr;
+            canvas.height = ch * dpr;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // ============================================================================
+        // 3. УПРАВЛЕНИЕ СЦЕНАМИ, ИНСПЕКТОРОМ И КНОПКАМИ
+        // ============================================================================
+        function selectScene(index) {
+            state.currentScene = index;
+            state.progress = 0;
+
+            // Обновление табов
+            for (let i = 0; i < 6; i++) {
+                const tab = document.getElementById(`tab-${i}`);
+                if (i === index) tab.classList.add('active');
+                else tab.classList.remove('active');
+            }
+
+            updateInspectorUI();
+            renderSceneControls();
+        }
+
+        function updateInspectorUI() {
+            const data = SCENES_DATA[state.currentScene];
+            document.getElementById('hudSceneTitle').textContent = data.title.toUpperCase();
+            document.getElementById('inspectorBadge').textContent = data.badge;
+            document.getElementById('inspectorTitle').textContent = data.title;
+            document.getElementById('inspectorScoreVal').textContent = data.scoreLabel;
+            document.getElementById('inspectorDescription').textContent = data.description;
+            document.getElementById('inspectorVerdict').textContent = data.verdict;
+
+            // Метрики
+            const metricsHTML = data.metrics.map(m => `
+                <div>
+                    <div class="flex justify-between text-[11px] font-mono mb-1">
+                        <span class="text-slate-400">${m.name}</span>
+                        <span class="text-slate-200 font-semibold">${m.val}</span>
+                    </div>
+                    <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                        <div class="${m.color} h-full rounded-full transition-all duration-500" style="width: ${m.pct}%"></div>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('inspectorMetrics').innerHTML = metricsHTML;
+
+            // Преимущества
+            document.getElementById('inspectorPros').innerHTML = data.pros.map(p => `
+                <li class="flex items-start gap-2">
+                    <span class="text-emerald-400 font-bold mt-0.5">•</span>
+                    <span>${p}</span>
+                </li>
+            `).join('');
+
+            // Недостатки
+            document.getElementById('inspectorCons').innerHTML = data.cons.map(c => `
+                <li class="flex items-start gap-2">
+                    <span class="text-rose-400 font-bold mt-0.5">•</span>
+                    <span>${c}</span>
+                </li>
+            `).join('');
+        }
+
+        function renderSceneControls() {
+            const data = SCENES_DATA[state.currentScene];
+            const stepsContainer = document.getElementById('sceneStepButtons');
+            const ctrlContainer = document.getElementById('sceneInteractiveControls');
+
+            // Кнопки переключения этапов внутри сцены
+            stepsContainer.innerHTML = data.steps.map((st, idx) => `
+                <button onclick="jumpToStep(${idx})" id="stepBtn-${idx}" class="px-2.5 py-1.5 rounded-lg text-xs font-mono border border-slate-700 bg-slate-900/90 text-slate-300 hover:border-cyan-500/60 transition">
+                    ${st.label}
+                </button>
+            `).join('');
+
+            // Интерактивные контролы для конкретной сцены
+            if (state.currentScene === 0) {
+                ctrlContainer.innerHTML = `
+                    <button onclick="state.progress = 0.15" class="px-3 py-1.5 rounded-lg text-xs font-mono bg-cyan-500/15 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/25 transition">
+                        Взрыв-схема слоёв
+                    </button>
+                    <button onclick="state.progress = 0.50" class="px-3 py-1.5 rounded-lg text-xs font-mono bg-amber-500/15 border border-amber-500/40 text-amber-300 hover:bg-amber-500/25 transition">
+                        Тест: Влага и ветер
+                    </button>
+                `;
+            } else if (state.currentScene === 1) {
+                ctrlContainer.innerHTML = `
+                    <button onclick="toggleGrinderRisk()" class="px-3 py-1.5 rounded-lg text-xs font-mono border ${state.scene1GrinderRisk ? 'bg-rose-500/20 border-rose-500 text-rose-300' : 'bg-slate-900 border-slate-700 text-slate-400'} transition flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full ${state.scene1GrinderRisk ? 'bg-rose-500 animate-ping' : 'bg-slate-500'}"></span>
+                        <span>Риск УШМ: Скол и прижог кромки (${state.scene1GrinderRisk ? 'ВКЛ' : 'ВЫКЛ'})</span>
+                    </button>
+                `;
+            } else if (state.currentScene === 2) {
+                ctrlContainer.innerHTML = `
+                    <button onclick="toggleGlueDefect()" class="px-3 py-1.5 rounded-lg text-xs font-mono border ${state.scene2GlueDefect ? 'bg-amber-500/20 border-amber-500 text-amber-300' : 'bg-slate-900 border-slate-700 text-slate-300'} transition flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full ${state.scene2GlueDefect ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}"></span>
+                        <span>Симуляция разнотолщинности клея / ступеньки: ${state.scene2GlueDefect ? 'ДЕФЕКТ (+1.2 мм)' : 'НОРМА (Заподлицо)'}</span>
+                    </button>
+                `;
+            } else if (state.currentScene === 3) {
+                ctrlContainer.innerHTML = `
+                    <div class="flex items-center bg-slate-900/95 border border-slate-700 rounded-lg p-0.5 font-mono text-xs">
+                        <button onclick="setBevelMode(false)" class="px-2.5 py-1 rounded-md transition ${!state.scene3Bevel60 ? 'bg-cyan-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'}">
+                            Прямой торец 90°
+                        </button>
+                        <button onclick="setBevelMode(true)" class="px-2.5 py-1 rounded-md transition ${state.scene3Bevel60 ? 'bg-cyan-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'}">
+                            Скос 60° (Теневой шов)
+                        </button>
+                    </div>
+                `;
+            } else if (state.currentScene === 4) {
+                ctrlContainer.innerHTML = `
+                    <div class="flex flex-wrap items-center gap-2 bg-slate-900/95 border border-slate-700 rounded-lg px-3 py-1.5 font-mono text-xs">
+                        <button onclick="toggleThermalAuto()" class="px-2 py-0.5 rounded border ${state.scene4AutoCycle ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300' : 'border-slate-700 text-slate-400'}">
+                            Авто-цикл (-15..+60°C)
+                        </button>
+                        <div class="flex items-center gap-2">
+                            <span class="text-slate-400">T°C:</span>
+                            <input type="range" min="-35" max="70" value="${Math.round(state.scene4Temp)}" oninput="onManualTemp(this.value)" class="w-24 sm:w-32">
+                            <span id="tempSliderLabel" class="text-amber-300 font-bold w-12">${Math.round(state.scene4Temp)}°C</span>
+                        </div>
+                        <label class="flex items-center gap-1.5 cursor-pointer text-emerald-300 border-l border-slate-700 pl-2">
+                            <input type="checkbox" ${state.scene4ExpansionJoints ? 'checked' : ''} onchange="toggleExpansionJoints(this.checked)" class="accent-emerald-500 w-3.5 h-3.5">
+                            <span>Деф. швы тыла</span>
+                        </label>
+                    </div>
+                `;
+            } else if (state.currentScene === 5) {
+                const critNames = ["Эстетика", "Склейка", "Скорость", "Допуски", "Подрезка", "Термо-КТР", "Стоимость"];
+                ctrlContainer.innerHTML = critNames.map((c, idx) => `
+                    <button onclick="selectMatrixCriterion(${idx})" class="px-2 py-1 rounded text-[11px] font-mono border transition ${state.scene5SelectedCriterion === idx ? 'bg-cyan-500/25 border-cyan-400 text-white font-bold' : 'bg-slate-900/90 border-slate-800 text-slate-400 hover:text-white'}">
+                        ${idx + 1}. ${c}
+                    </button>
+                `).join('');
+            }
+        }
+
+        function jumpToStep(stepIdx) {
+            const data = SCENES_DATA[state.currentScene];
+            if (data.steps[stepIdx]) {
+                state.progress = data.steps[stepIdx].range[0] + 0.01;
+            }
+        }
+
+        function toggleGrinderRisk() {
+            state.scene1GrinderRisk = !state.scene1GrinderRisk;
+            if (state.progress < 0.68) state.progress = 0.72;
+            renderSceneControls();
+        }
+
+        function toggleGlueDefect() {
+            state.scene2GlueDefect = !state.scene2GlueDefect;
+            if (state.progress < 0.66) state.progress = 0.78;
+            renderSceneControls();
+        }
+
+        function setBevelMode(is60) {
+            state.scene3Bevel60 = is60;
+            if (state.progress < 0.55) state.progress = 0.82;
+            renderSceneControls();
+        }
+
+        function toggleThermalAuto() {
+            state.scene4AutoCycle = !state.scene4AutoCycle;
+            renderSceneControls();
+        }
+
+        function onManualTemp(val) {
+            state.scene4AutoCycle = false;
+            state.scene4Temp = parseFloat(val);
+            const lbl = document.getElementById('tempSliderLabel');
+            if (lbl) lbl.textContent = `${Math.round(state.scene4Temp)}°C`;
+            renderSceneControls();
+        }
+
+        function toggleExpansionJoints(checked) {
+            state.scene4ExpansionJoints = checked;
+            renderSceneControls();
+        }
+
+        function selectMatrixCriterion(idx) {
+            state.scene5SelectedCriterion = idx;
+            renderSceneControls();
+        }
+
+        // Управление плеером
+        function togglePlay() {
+            state.isPlaying = !state.isPlaying;
+            const icon = document.getElementById('iconPlayPause');
+            icon.setAttribute('data-lucide', state.isPlaying ? 'pause' : 'play');
+            lucide.createIcons();
+        }
+
+        function restartScene() {
+            state.progress = 0;
+        }
+
+        function prevScene() {
+            selectScene((state.currentScene + 5) % 6);
+        }
+
+        function nextScene() {
+            selectScene((state.currentScene + 1) % 6);
+        }
+
+        function onScrub(val) {
+            state.progress = parseFloat(val) / 1000;
+        }
+
+        function setSpeed(spd) {
+            state.speed = spd;
+            [0.5, 1, 1.5].forEach(s => {
+                const btn = document.getElementById(`spd-${s}`);
+                if (s === spd) {
+                    btn.className = "px-2 py-1 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-bold transition";
+                } else {
+                    btn.className = "px-2 py-1 rounded text-slate-400 hover:text-white transition";
+                }
+            });
+        }
+
+        function toggleAutoTour() {
+            state.autoTour = !state.autoTour;
+            const btn = document.getElementById('btnAutoTour');
+            const lbl = document.getElementById('autoTourLabel');
+            if (state.autoTour) {
+                state.isPlaying = true;
+                lbl.textContent = "АВТО-ТУР: АКТИВЕН";
+                btn.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-mono font-bold border border-emerald-400 bg-emerald-500/20 text-emerald-300 shadow-lg shadow-emerald-500/20 transition-all";
+            } else {
+                lbl.textContent = "АВТО-ТУР: ВЫКЛ";
+                btn.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-mono font-medium border border-amber-500/40 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 transition-all";
+            }
+        }
+
+        function openReportModal() {
+            const modal = document.getElementById('reportModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeReportModal() {
+            const modal = document.getElementById('reportModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // ============================================================================
+        // 4. ВСПОМОГАТЕЛЬНЫЕ ЧЕРТЕЖНЫЕ И КИНЕМАТИЧЕСКИЕ ФУНКЦИИ РИСОВАНИЯ (CAD)
+        // ============================================================================
+        const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+        const lerp = (a, b, t) => a + (b - a) * clamp(t, 0, 1);
+        const easeInOut = t => {
+            t = clamp(t, 0, 1);
+            return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        };
+
+        // Рисование размерной линии по ГОСТ / CAD
+        function drawDimensionLine(ctx, x1, y1, x2, y2, text, color = '#06b6d4', offset = 0) {
+            ctx.save();
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            ctx.lineWidth = 1.2;
+            ctx.font = '600 11px "JetBrains Mono", monospace';
+
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            const len = Math.hypot(dx, dy);
+            if (len < 1) { ctx.restore(); return; }
+            const nx = -dy / len;
+            const ny = dx / len;
+
+            const sx1 = x1 + nx * offset;
+            const sy1 = y1 + ny * offset;
+            const sx2 = x2 + nx * offset;
+            const sy2 = y2 + ny * offset;
+
+            // Выносные линии
+            if (Math.abs(offset) > 2) {
+                ctx.setLineDash([2, 2]);
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(sx1, sy1);
+                ctx.moveTo(x2, y2);
+                ctx.lineTo(sx2, sy2);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // Основная линия
+            ctx.beginPath();
+            ctx.moveTo(sx1, sy1);
+            ctx.lineTo(sx2, sy2);
+            ctx.stroke();
+
+            // Засечки (стрелки)
+            const angle = Math.atan2(dy, dx);
+            const arrowSize = 6;
+            [ [sx1, sy1, angle], [sx2, sy2, angle + Math.PI] ].forEach(([px, py, ang]) => {
+                ctx.beginPath();
+                ctx.moveTo(px, py);
+                ctx.lineTo(px + Math.cos(ang - 0.35) * arrowSize, py + Math.sin(ang - 0.35) * arrowSize);
+                ctx.lineTo(px + Math.cos(ang + 0.35) * arrowSize, py + Math.sin(ang + 0.35) * arrowSize);
+                ctx.closePath();
+                ctx.fill();
+            });
+
+            // Плашка с текстом
+            const mx = (sx1 + sx2) / 2;
+            const my = (sy1 + sy2) / 2;
+            const tw = ctx.measureText(text).width + 10;
+            ctx.fillStyle = '#070b12';
+            ctx.fillRect(mx - tw / 2, my - 9, tw, 18);
+            ctx.strokeStyle = color;
+            ctx.strokeRect(mx - tw / 2, my - 9, tw, 18);
+            ctx.fillStyle = color;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, mx, my);
+            ctx.restore();
+        }
+
+        // Выноска с полкой (Callout)
+        function drawCallout(ctx, px, py, tx, ty, title, subtitle, color = '#06b6d4') {
+            ctx.save();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.3;
+
+            // Точка на объекте
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(px, py, 3.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Линия выноски
+            const dir = tx >= px ? 1 : -1;
+            ctx.beginPath();
+            ctx.moveTo(px, py);
+            ctx.lineTo(tx, ty);
+            ctx.lineTo(tx + dir * 135, ty);
+            ctx.stroke();
+
+            // Текст
+            ctx.textAlign = dir > 0 ? 'left' : 'right';
+            const textX = tx + dir * 6;
+            ctx.font = '700 11px "Inter", sans-serif';
+            ctx.fillStyle = '#f8fafc';
+            ctx.fillText(title, textX, ty - 6);
+
+            if (subtitle) {
+                ctx.font = '500 10px "JetBrains Mono", monospace';
+                ctx.fillStyle = color;
+                ctx.fillText(subtitle, textX, ty + 11);
+            }
+            ctx.restore();
+        }
+
+        // Рисование текстурированного слоя керамогранита
+        function drawCeramicLayer(ctx, x, y, w, h, bevelRightAngleDeg = 90, chipped = false) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + w, y);
+            const rad = (90 - bevelRightAngleDeg) * Math.PI / 180;
+            const bottomRightX = x + w - Math.tan(rad) * h;
+            ctx.lineTo(bottomRightX, y + h);
+            ctx.lineTo(x, y + h);
+            ctx.closePath();
+
+            const grad = ctx.createLinearGradient(x, y, x, y + h);
+            grad.addColorStop(0, '#94a3b8');
+            grad.addColorStop(0.5, '#64748b');
+            grad.addColorStop(1, '#475569');
+            ctx.fillStyle = grad;
+            ctx.fill();
+
+            // Каменная зернистость керамогранита
+            ctx.clip();
+            ctx.fillStyle = 'rgba(255,255,255,0.08)';
+            for (let i = 0; i < w; i += 18) {
+                ctx.fillRect(x + i, y + (i % 7) * 3, 8, 3);
+                ctx.fillStyle = i % 36 === 0 ? 'rgba(15,23,42,0.22)' : 'rgba(255,255,255,0.09)';
+                ctx.fillRect(x + i + 5, y + h * 0.55, 10, 4);
+            }
+
+            // Если симулируется скол/прижог от УШМ
+            if (chipped) {
+                ctx.fillStyle = '#ef4444';
+                ctx.beginPath();
+                ctx.arc(x + w - 2, y + 3, 9, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#1e1b4b';
+                ctx.beginPath();
+                ctx.moveTo(x + w - 10, y);
+                ctx.lineTo(x + w, y);
+                ctx.lineTo(x + w, y + 11);
+                ctx.closePath();
+                ctx.fill();
+            }
+            ctx.restore();
+
+            // Контур
+            ctx.save();
+            ctx.strokeStyle = chipped ? '#ef4444' : '#cbd5e1';
+            ctx.lineWidth = 1.4;
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + w, y);
+            const rad2 = (90 - bevelRightAngleDeg) * Math.PI / 180;
+            ctx.lineTo(x + w - Math.tan(rad2) * h, y + h);
+            ctx.lineTo(x, y + h);
+            ctx.closePath();
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        // Рисование алюминиевого сотового заполнителя в разрезе (трапеции/гексагоны + 3D глубина)
+        function drawHoneycombCore(ctx, x, y, w, h, waterLevel = 0) {
+            ctx.save();
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(x, y, w, h);
+
+            const cellW = 26;
+            const numCells = Math.floor(w / cellW);
+            for (let i = 0; i < numCells; i++) {
+                const cx = x + i * cellW;
+                // Внутренние грани алюминиевой фольги соты
+                const g = ctx.createLinearGradient(cx, y, cx + cellW, y);
+                g.addColorStop(0, 'rgba(56, 189, 248, 0.08)');
+                g.addColorStop(0.5, 'rgba(148, 163, 184, 0.25)');
+                g.addColorStop(1, 'rgba(56, 189, 248, 0.05)');
+                ctx.fillStyle = g;
+                ctx.fillRect(cx + 2, y, cellW - 4, h);
+
+                // Диагональные ребра гексагональной ячейки
+                ctx.strokeStyle = 'rgba(148, 163, 184, 0.45)';
+                ctx.lineWidth = 1.2;
+                ctx.beginPath();
+                ctx.moveTo(cx, y);
+                ctx.lineTo(cx + cellW * 0.25, y + h);
+                ctx.moveTo(cx + cellW * 0.5, y + h);
+                ctx.lineTo(cx + cellW * 0.75, y);
+                ctx.stroke();
+
+                // Вертикальная стенка соты
+                ctx.strokeStyle = '#94a3b8';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(cx + cellW, y);
+                ctx.lineTo(cx + cellW, y + h);
+                ctx.stroke();
+
+                // Если в соты попала вода (Сцена 1, этап 2)
+                if (waterLevel > 0 && i >= numCells - 4) {
+                    const cellFactor = clamp((waterLevel - (numCells - 1 - i) * 0.18) * 1.6, 0, 1);
+                    const wh = h * 0.65 * cellFactor;
+                    ctx.fillStyle = 'rgba(6, 182, 212, 0.55)';
+                    ctx.fillRect(cx + 2, y + h - wh, cellW - 3, wh);
+                }
+            }
+            ctx.strokeStyle = '#475569';
+            ctx.strokeRect(x, y, w, h);
+            ctx.restore();
+        }
+
+        // ============================================================================
+        // 5. РЕНДЕРИНГ СЦЕН 1–6 НА HTML5 CANVAS
+        // ============================================================================
+
+        // --- СЦЕНА 1: ВЗРЫВ-СХЕМА ПАНЕЛИ (3000×1000×22 ММ) И АТАКА ВНЕШНЕЙ СРЕДЫ ---
+        function renderScene1(ctx, p, time) {
+            const cx = cw * 0.46;
+            const cy = ch * 0.48;
+            const panelW = Math.min(cw * 0.56, 480);
+            const leftX = cx - panelW * 0.55;
+
+            // Фаза расслоения (0..0.35 -> раздвижка и смыкание)
+            let explode = 0;
+            if (p < 0.35) {
+                explode = Math.sin((p / 0.35) * Math.PI) * 38;
+            }
+            const wetFactor = p >= 0.35 && p < 0.72 ? easeInOut((p - 0.35) / 0.25) : (p >= 0.72 ? 0.2 : 0);
+
+            const hCeram = 34;
+            const hGlue = 6;
+            const hCore = 76;
+            const hBack = 9;
+            const totalAssembled = hCeram + hGlue * 2 + hCore + hBack;
+            const topY = cy - totalAssembled / 2;
+
+            const yCeram = topY - explode * 1.5;
+            const yGlue1 = topY + hCeram - explode * 0.7;
+            const yCore  = topY + hCeram + hGlue;
+            const yGlue2 = yCore + hCore + explode * 0.7;
+            const yBack  = yCore + hCore + hGlue + explode * 1.4;
+
+            // 1. Лицевой керамогранит
+            drawCeramicLayer(ctx, leftX, yCeram, panelW, hCeram, 90, false);
+
+            // 2. Верхний клеевой слой
+            ctx.fillStyle = '#f59e0b';
+            ctx.fillRect(leftX, yGlue1, panelW, hGlue);
+
+            // 3. Алюминиевый сотовый заполнитель (гексагональный)
+            drawHoneycombCore(ctx, leftX, yCore, panelW, hCore, wetFactor);
+
+            // 4. Нижний клеевой слой
+            ctx.fillStyle = '#f59e0b';
+            ctx.fillRect(leftX, yGlue2, panelW, hGlue);
+
+            // 5. Тыльная обшивка (оцинкованная сталь / алюминий)
+            const backGrad = ctx.createLinearGradient(leftX, yBack, leftX + panelW, yBack);
+            backGrad.addColorStop(0, '#94a3b8');
+            backGrad.addColorStop(0.5, '#e2e8f0');
+            backGrad.addColorStop(1, '#64748b');
+            ctx.fillStyle = backGrad;
+            ctx.fillRect(leftX, yBack, panelW, hBack);
+
+            // Выноски слоев
+            drawCallout(ctx, leftX + panelW * 0.25, yCeram + hCeram / 2, leftX + panelW * 0.15, yCeram - 28,
+                "1. Лицевой керамогранит", "КТР ≈ (6–7)×10⁻⁶ K⁻¹", "#38bdf8");
+
+            drawCallout(ctx, leftX + panelW * 0.52, yCore + hCore / 2, leftX + panelW * 0.42, yCore - 48,
+                "2. Алюминиевая сота", "Гексагональное ядро", "#f59e0b");
+
+            drawCallout(ctx, leftX + panelW * 0.35, yBack + hBack / 2, leftX + panelW * 0.25, yBack + 36,
+                "3. Тыльная обшивка", "Оцинк. сталь / Алюминий", "#10b981");
+
+            // Размерная цепочка 22 мм слева
+            drawDimensionLine(ctx, leftX - 18, yCeram, leftX - 18, yBack + hBack, "22.0 мм", "#06b6d4", -22);
+            drawDimensionLine(ctx, leftX, yBack + hBack + 58, leftX + panelW, yBack + hBack + 58, "МАКС. ГАБАРИТ: 3000 × 1000 мм", "#94a3b8", 0);
+
+            // Мини-проекция гексагональных сот в правом верхнем углу
+            const hexCenterX = cw - 110;
+            const hexCenterY = 125;
+            ctx.save();
+            ctx.strokeStyle = 'rgba(6, 182, 212, 0.35)';
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+            ctx.beginPath();
+            ctx.roundRect(hexCenterX - 75, hexCenterY - 52, 150, 104, 8);
+            ctx.fill();
+            ctx.stroke();
+            ctx.font = '600 10px "JetBrains Mono", monospace';
+            ctx.fillStyle = '#94a3b8';
+            ctx.textAlign = 'center';
+            ctx.fillText("ПЛАН ЯЧЕЕК СОТЫ (Al)", hexCenterX, hexCenterY - 36);
+
+            const r = 14;
+            const offsets = [[-24, -6], [0, -6], [24, -6], [-12, 15], [12, 15]];
+            offsets.forEach(([ox, oy], idx) => {
+                ctx.beginPath();
+                for (let k = 0; k < 6; k++) {
+                    const ang = (k * 60 + 30) * Math.PI / 180;
+                    const hx = hexCenterX + ox + Math.cos(ang) * r;
+                    const hy = hexCenterY + 6 + oy + Math.sin(ang) * r;
+                    if (k === 0) ctx.moveTo(hx, hy);
+                    else ctx.lineTo(hx, hy);
+                }
+                ctx.closePath();
+                ctx.fillStyle = (wetFactor > 0.3 && idx % 2 === 0) ? 'rgba(6, 182, 212, 0.45)' : 'rgba(30, 41, 59, 0.8)';
+                ctx.fill();
+                ctx.strokeStyle = '#38bdf8';
+                ctx.lineWidth = 1.2;
+                ctx.stroke();
+            });
+            ctx.restore();
+
+            // ФАЗА 2: Атака влаги, грязи и ветра на открытый торец справа
+            const openEdgeX = leftX + panelW;
+            if (p >= 0.35 && p < 0.72) {
+                // Красная зона опасности на открытом торце
+                ctx.save();
+                ctx.strokeStyle = '#ef4444';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 4]);
+                ctx.strokeRect(openEdgeX - 12, yCeram - 8, 36, totalAssembled + 16);
+                ctx.setLineDash([]);
+
+                // Частицы капель влаги и грязи, летящие в открытый торец
+                state.particles.slice(0, 35).forEach((pt, i) => {
+                    const cycle = (time * 0.9 + pt.seed) % 1;
+                    const startX = openEdgeX + 160;
+                    const targetX = openEdgeX - 35;
+                    const px = lerp(startX, targetX, cycle);
+                    const py = yCore + ((i * 19) % hCore) + Math.sin(time * 4 + i) * 6;
+
+                    ctx.fillStyle = i % 3 === 0 ? '#a16207' : '#06b6d4'; // грязь или капля воды
+                    ctx.beginPath();
+                    ctx.arc(px, py, i % 3 === 0 ? 3.2 : 2.6, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                drawCallout(ctx, openEdgeX, yCore + hCore * 0.5, openEdgeX + 45, yCore + 15,
+                    "ОТКРЫТЫЙ ТОРЕЦ (УЯЗВИМАЯ ЗОНА)", "Влага + Грязь + Разрыв сот льдом", "#ef4444");
+                ctx.restore();
+            }
+
+            // ФАЗА 3: Анонс 3-х способов герметизации торца
+            if (p >= 0.72) {
+                const methods = [
+                    { name: "Способ 1: ПУ-герметик Puraflex 9270 + УШМ", col: "#f59e0b", y: yCore - 10 },
+                    { name: "Способ 2: Al-обрамление заподлицо на саморезах", col: "#10b981", y: yCore + 35 },
+                    { name: "Способ 3: Кассета AluRanger (ЧПУ + подгиб 60°)", col: "#06b6d4", y: yCore + 80 }
+                ];
+                methods.forEach((m, i) => {
+                    const bx = openEdgeX + 35;
+                    ctx.save();
+                    ctx.strokeStyle = m.col;
+                    ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.roundRect(bx, m.y - 14, 265, 28, 6);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(openEdgeX, yCore + hCore * (0.25 + i * 0.25));
+                    ctx.lineTo(bx, m.y);
+                    ctx.stroke();
+
+                    ctx.fillStyle = m.col;
+                    ctx.font = '600 11px "Inter", sans-serif';
+                    ctx.fillText(m.name, bx + 10, m.y + 4);
+                    ctx.restore();
+                });
+            }
+
+            // Обновление телеметрии
+            document.getElementById('telemetryVal1').textContent = explode > 2 ? `ВЗРЫВ-СХЕМА (+${Math.round(explode)} мм)` : "22.0 мм (СБОРКА)";
+            document.getElementById('telemetryVal2').textContent = p >= 0.35 && p < 0.72 ? "ВЛАГА В СОТАХ!" : "3000 × 1000 мм";
+            document.getElementById('telemetryVal3').textContent = p >= 0.35 && p < 0.72 ? "РИСК КОРРОЗИИ" : "АНАЛИЗ 3 СХЕМ";
+        }
+
+        // --- СЦЕНА 2: СПОСОБ 1 — ГЕРМЕТИК PURAFLEX 9270 + ШЛИФОВКА УШМ ---
+        function renderScene2(ctx, p, time) {
+            const cx = cw * 0.42;
+            const cy = ch * 0.50;
+            const panelW = Math.min(cw * 0.48, 410);
+            const leftX = cx - panelW * 0.55;
+            const rightEdgeX = leftX + panelW;
+
+            const hCeram = 36;
+            const hGlue = 6;
+            const hCore = 80;
+            const hBack = 10;
+            const totalH = hCeram + hGlue * 2 + hCore + hBack;
+            const topY = cy - totalH / 2;
+
+            const isGrinding = p >= 0.67;
+            const grindProgress = isGrinding ? clamp((p - 0.67) / 0.28, 0, 1) : 0;
+            const showChipping = isGrinding && state.scene1GrinderRisk && grindProgress > 0.25;
+
+            // Основное тело панели
+            drawCeramicLayer(ctx, leftX, topY, panelW, hCeram, 90, showChipping);
+            ctx.fillStyle = '#f59e0b';
+            ctx.fillRect(leftX, topY + hCeram, panelW, hGlue);
+            drawHoneycombCore(ctx, leftX, topY + hCeram + hGlue, panelW, hCore, 0);
+            ctx.fillStyle = '#f59e0b';
+            ctx.fillRect(leftX, topY + hCeram + hGlue + hCore, panelW, hGlue);
+            ctx.fillStyle = '#cbd5e1';
+            ctx.fillRect(leftX, topY + hCeram + hGlue * 2 + hCore, panelW, hBack);
+
+            // Расчет заполнения торца герметиком Puraflex 9270
+            const fillRatio = clamp(p / 0.28, 0, 1);
+            const sealDepth = 38; // глубина проникновения в соты
+            const bulgeWidth = isGrinding ? lerp(22, 0, easeInOut(grindProgress)) : 22 * fillRatio;
+
+            // Черный полиуретановый герметик в торце
+            if (fillRatio > 0) {
+                ctx.save();
+                ctx.fillStyle = '#18181b';
+                ctx.strokeStyle = '#3f3f46';
+                ctx.lineWidth = 1.5;
+
+                const fillH = totalH * fillRatio;
+                // Внутренняя пробка в сотах
+                ctx.fillRect(rightEdgeX - sealDepth, topY + hCeram, sealDepth, Math.min(fillH, hCore + hGlue * 2));
+
+                // Внешний наплыв за плоскость торца (до сошлифовки УШМ)
+                ctx.beginPath();
+                ctx.moveTo(rightEdgeX, topY);
+                ctx.quadraticCurveTo(rightEdgeX + bulgeWidth * 1.4, topY + fillH * 0.5, rightEdgeX, topY + fillH);
+                ctx.lineTo(rightEdgeX - 4, topY + fillH);
+                ctx.lineTo(rightEdgeX - 4, topY);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            // ШАГ 1 (0..0.33): Экструзия герметика из сопла пистолета
+            if (p < 0.33) {
+                const nozzleY = topY + totalH * fillRatio;
+                ctx.save();
+                ctx.fillStyle = '#06b6d4';
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(rightEdgeX + 16, nozzleY - 6);
+                ctx.lineTo(rightEdgeX + 75, nozzleY - 26);
+                ctx.lineTo(rightEdgeX + 75, nozzleY + 6);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                drawCallout(ctx, rightEdgeX - 15, topY + hCeram + hCore * 0.5, rightEdgeX + 55, topY - 20,
+                    "ШАГ 1: Герметик Puraflex 9270", "Глубинное уплотнение вручную", "#06b6d4");
+                ctx.restore();
+            }
+
+            // ШАГ 2 (0.33..0.67): Полимеризация от влаги воздуха (2,5–3,5 мм/сутки, пауза до 48 часов)
+            if (p >= 0.33 && p < 0.67) {
+                const cureRatio = clamp((p - 0.33) / 0.32, 0, 1);
+                const hours = Math.round(cureRatio * 48);
+                const curedMm = (cureRatio * 6.5).toFixed(1);
+
+                // Фронт полимеризации от кромки внутрь
+                const cureFrontX = rightEdgeX + bulgeWidth * 0.5 - cureRatio * (sealDepth + bulgeWidth * 0.5);
+                ctx.save();
+                ctx.strokeStyle = '#f59e0b';
+                ctx.lineWidth = 2.5;
+                ctx.setLineDash([4, 3]);
+                ctx.beginPath();
+                ctx.moveTo(cureFrontX, topY - 10);
+                ctx.lineTo(cureFrontX, topY + totalH + 10);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Молекулы влаги H2O из воздуха
+                for (let i = 0; i < 6; i++) {
+                    const my = topY + 15 + i * 22;
+                    const mx = rightEdgeX + 45 - ((time * 30 + i * 15) % 35);
+                    ctx.fillStyle = '#38bdf8';
+                    ctx.font = '600 10px "JetBrains Mono", monospace';
+                    ctx.fillText("H₂O →", mx, my);
+                }
+
+                // Виджет 48-часовой паузы и накопления полуфабрикатов в цеху
+                const bx = rightEdgeX + 55;
+                const by = topY - 10;
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.94)';
+                ctx.strokeStyle = '#f59e0b';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.roundRect(bx, by, 215, 135, 8);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#f59e0b';
+                ctx.font = '700 11px "JetBrains Mono", monospace';
+                ctx.fillText("ТЕХНОЛОГИЧЕСКАЯ ПАУЗА СУШКИ", bx + 12, by + 22);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '700 20px "JetBrains Mono", monospace';
+                ctx.fillText(`${hours} / 48 ЧАСОВ`, bx + 12, by + 48);
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = '500 11px "JetBrains Mono", monospace';
+                ctx.fillText(`Полимеризация: ${curedMm} мм (2,5–3,5 мм/сут)`, bx + 12, by + 68);
+                ctx.fillStyle = '#fca5a5';
+                ctx.fillText("Затоваривание цеха паллетами:", bx + 12, by + 90);
+
+                // Иконки накапливающихся стопок полуфабрикатов
+                const stacks = Math.ceil(cureRatio * 8);
+                for (let s = 0; s < stacks; s++) {
+                    ctx.fillStyle = s > 5 ? '#ef4444' : '#f59e0b';
+                    ctx.fillRect(bx + 12 + s * 23, by + 100, 18, 22);
+                }
+                ctx.restore();
+            }
+
+            // ШАГ 3 (0.67..1.0): Шлифовка УШМ в единую плоскость, вязкая пыль и риск брака
+            if (isGrinding) {
+                const discY = lerp(topY + totalH + 10, topY - 5, grindProgress);
+                const discX = rightEdgeX + bulgeWidth + (showChipping ? -2 : 2);
+
+                ctx.save();
+                // Вращающийся абразивный диск УШМ
+                ctx.translate(discX + 26, discY);
+                ctx.rotate(time * 22);
+                ctx.fillStyle = '#334155';
+                ctx.strokeStyle = showChipping ? '#ef4444' : '#f59e0b';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(0, 0, 28, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                // Насечки диска УШМ
+                for (let a = 0; a < 8; a++) {
+                    ctx.rotate(Math.PI / 4);
+                    ctx.strokeStyle = '#94a3b8';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(8, 0);
+                    ctx.lineTo(26, 0);
+                    ctx.stroke();
+                }
+                ctx.restore();
+
+                // Облако вязкой черной полиуретановой пыли и искры при касании керамики
+                state.particles.slice(0, 45).forEach((pt, i) => {
+                    const life = (time * 1.8 + pt.seed) % 1;
+                    const px = rightEdgeX + Math.cos(i) * life * 110 + 15;
+                    const py = discY + Math.sin(i * 2.3) * life * 90;
+                    if (showChipping && i % 3 === 0) {
+                        ctx.fillStyle = '#ef4444'; // искры прижога керамогранита
+                        ctx.fillRect(px, py, 4, 2);
+                    } else {
+                        ctx.fillStyle = `rgba(39, 39, 42, ${1 - life})`; // черная вязкая пыль ПУ
+                        ctx.beginPath();
+                        ctx.arc(px, py, 3 + life * 5, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                });
+
+                if (showChipping) {
+                    drawCallout(ctx, rightEdgeX, topY + 4, rightEdgeX + 65, topY - 22,
+                        "РИСК БРАКА: КАСАНИЕ УШМ КЕРАМОГРАНИТА!", "Микросколы и прижог лицевой кромки", "#ef4444");
+                } else {
+                    drawCallout(ctx, rightEdgeX, topY + totalH * 0.5, rightEdgeX + 65, topY + 20,
+                        "ШАГ 3: Шлифовка УШМ в плоскость", "Обильная вязкая пыль и засаливание кругов", "#f59e0b");
+                }
+            }
+
+            document.getElementById('telemetryVal1').textContent = "2,5–3,5 мм/сут";
+            document.getElementById('telemetryVal2').textContent = "ПАУЗА ДО 48 Ч";
+            document.getElementById('telemetryVal3').textContent = showChipping ? "РИСК СКОЛА УШМ!" : "РУЧНОЙ ТРУД";
+        }
+
+        // --- СЦЕНА 3: СПОСОБ 2 — АЛЮМИНИЕВОЕ ОБРАМЛЕНИЕ НА САМОРЕЗАХ ---
+        function renderScene3(ctx, p, time) {
+            const cx = cw * 0.44;
+            const cy = ch * 0.50;
+            const panelW = Math.min(cw * 0.46, 390);
+            const leftX = cx - panelW * 0.55;
+            const rightEdgeX = leftX + panelW;
+
+            const hCeram = 34;
+            // Если включена симуляция погрешности клея, верхний клеевой слой утолщен (+10px на схеме = +1.2 мм в жизни)
+            const defectOffset = state.scene2GlueDefect ? 11 : 0;
+            const hGlue1 = 6 + defectOffset;
+            const hCore = 76;
+            const hGlue2 = 6;
+            const hBack = 9;
+            const totalH = hCeram + hGlue1 + hCore + hGlue2 + hBack;
+            const topY = cy - totalH / 2;
+
+            // Отрисовка склеенного сэндвича (Керамогранит + Al-сота + Оцинкованный стальной лист)
+            drawCeramicLayer(ctx, leftX, topY, panelW, hCeram, 90, false);
+            ctx.fillStyle = state.scene2GlueDefect ? '#ef4444' : '#f59e0b';
+            ctx.fillRect(leftX, topY + hCeram, panelW, hGlue1);
+            drawHoneycombCore(ctx, leftX, topY + hCeram + hGlue1, panelW, hCore, 0);
+            ctx.fillStyle = '#f59e0b';
+            ctx.fillRect(leftX, topY + hCeram + hGlue1 + hCore, panelW, hGlue2);
+            // Тыльный оцинкованный стальной лист
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillRect(leftX, topY + hCeram + hGlue1 + hCore + hGlue2, panelW, hBack);
+
+            // ШАГ 1 (0..0.33): Гидроабразивная резка (ГАР) в чистовой/доборный размер
+            if (p < 0.33) {
+                const cutRatio = clamp(p / 0.28, 0, 1);
+                const jetX = rightEdgeX;
+                const cutoffShift = easeInOut(cutRatio) * 35;
+
+                // Отрезаемый кусок справа
+                ctx.save();
+                ctx.globalAlpha = 1 - cutRatio * 0.7;
+                drawCeramicLayer(ctx, jetX + 6 + cutoffShift, topY + cutoffShift * 0.4, 70, hCeram, 90, false);
+                drawHoneycombCore(ctx, jetX + 6 + cutoffShift, topY + hCeram + hGlue1 + cutoffShift * 0.4, 70, hCore, 0);
+                ctx.restore();
+
+                // Сопло ГАР и сверхзвуковая струя воды с гранатовым песком
+                ctx.save();
+                ctx.fillStyle = '#334155';
+                ctx.strokeStyle = '#38bdf8';
+                ctx.fillRect(jetX - 10, topY - 65, 20, 42);
+                ctx.beginPath();
+                ctx.moveTo(jetX - 10, topY - 23);
+                ctx.lineTo(jetX + 10, topY - 23);
+                ctx.lineTo(jetX + 4, topY - 6);
+                ctx.lineTo(jetX - 4, topY - 6);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                // Струя воды
+                const streamGrad = ctx.createLinearGradient(jetX, topY - 6, jetX, topY + totalH + 55);
+                streamGrad.addColorStop(0, '#e0f2fe');
+                streamGrad.addColorStop(0.5, '#06b6d4');
+                streamGrad.addColorStop(1, 'rgba(6, 182, 212, 0)');
+                ctx.fillStyle = streamGrad;
+                ctx.fillRect(jetX - 2.5, topY - 6, 5, totalH + 60);
+
+                // Брызги абразива
+                state.particles.slice(0, 30).forEach((pt, i) => {
+                    const sp = (time * 3 + pt.seed) % 1;
+                    ctx.fillStyle = i % 2 === 0 ? '#38bdf8' : '#f59e0b';
+                    ctx.fillRect(jetX + (i % 2 === 0 ? 1 : -1) * sp * 55, topY + totalH * cutRatio + sp * 35, 2.5, 2.5);
+                });
+
+                drawCallout(ctx, jetX, topY - 25, jetX + 55, topY - 40,
+                    "ШАГ 1: Гидроабразивный раскрой (ГАР)", "Любые доборные габариты без сколов", "#38bdf8");
+                ctx.restore();
+            }
+
+            // ШАГ 2 и 3 (0.33..1.0): Порошковая окраска и монтаж алюминиевого профиля на саморезах
+            if (p >= 0.33) {
+                const isPainting = p < 0.66;
+                const paintRatio = clamp((p - 0.33) / 0.28, 0, 1);
+                const mountRatio = p >= 0.66 ? easeInOut((p - 0.66) / 0.22) : 0;
+
+                // Позиция алюминиевого профиля
+                const profDist = isPainting ? 115 : lerp(115, 0, mountRatio);
+                const profX = rightEdgeX + profDist;
+                // Стандартная высота вертикальной полки профиля рассчитана на номинальную толщину панели
+                const nominalH = 34 + 6 + 76 + 6 + 9;
+                // Профиль выравнивается по тыльному листу, поэтому при перекосе клея образуется ступенька сверху
+                const profTopY = (topY + totalH) - nominalH;
+
+                ctx.save();
+                // Цвет профиля: переходит от сырого алюминия к порошковой покраске в тон керамогранита
+                ctx.fillStyle = paintRatio > 0.5 ? '#64748b' : '#cbd5e1';
+                ctx.strokeStyle = paintRatio > 0.5 ? '#e2e8f0' : '#94a3b8';
+                ctx.lineWidth = 1.6;
+
+                // Г-образный торцевой алюминиевый профиль с нижней крепежной полкой под саморез
+                ctx.beginPath();
+                ctx.moveTo(profX, profTopY);
+                ctx.lineTo(profX + 12, profTopY);
+                ctx.lineTo(profX + 12, profTopY + nominalH + 8);
+                ctx.lineTo(profX - 58, profTopY + nominalH + 8);
+                ctx.lineTo(profX - 58, profTopY + nominalH);
+                ctx.lineTo(profX, profTopY + nominalH);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                // Фаза порошковой окраски (облако полимерного порошка)
+                if (isPainting) {
+                    state.particles.slice(0, 35).forEach((pt, i) => {
+                        const cycle = (time * 1.5 + pt.seed) % 1;
+                        const sx = profX + 85 - cycle * 75;
+                        const sy = profTopY + ((i * 17) % nominalH);
+                        ctx.fillStyle = `rgba(148, 163, 184, ${1 - cycle})`;
+                        ctx.beginPath();
+                        ctx.arc(sx, sy, 3.5, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+                    drawCallout(ctx, profX + 12, profTopY + nominalH * 0.4, profX + 45, profTopY - 15,
+                        "ШАГ 2: Полимерно-порошковая окраска", "Покраска профиля в тон керамогранита", "#f59e0b");
+                }
+
+                // Фаза фиксации саморезом в тыльный оцинкованный лист
+                if (p >= 0.66) {
+                    const screwRatio = clamp((p - 0.78) / 0.18, 0, 1);
+                    const screwX = rightEdgeX - 32;
+                    const screwY = (topY + totalH + 8) + lerp(32, 0, easeInOut(screwRatio));
+
+                    // Саморез с прессшайбой/буром
+                    ctx.fillStyle = '#38bdf8';
+                    ctx.strokeStyle = '#0f172a';
+                    ctx.lineWidth = 1;
+                    // Шляпка
+                    ctx.fillRect(screwX - 8, screwY, 16, 5);
+                    // Стержень с резьбой, входящий в тыльный оцинкованный лист
+                    ctx.fillRect(screwX - 3, screwY - 22, 6, 22);
+                    for (let t = 0; t < 5; t++) {
+                        ctx.beginPath();
+                        ctx.moveTo(screwX - 5, screwY - 4 - t * 4);
+                        ctx.lineTo(screwX + 5, screwY - 6 - t * 4);
+                        ctx.stroke();
+                    }
+
+                    drawCallout(ctx, screwX, screwY + 4, screwX + 60, screwY + 32,
+                        "Механическая фиксация саморезом", "В тыльный оцинкованный стальной лист", "#10b981");
+
+                    // Если включена симуляция разнотолщинности клея -> показываем ступеньку
+                    if (state.scene2GlueDefect && mountRatio > 0.8) {
+                        ctx.strokeStyle = '#ef4444';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(rightEdgeX - 18, topY - 12, 42, 34);
+                        drawCallout(ctx, rightEdgeX + 6, topY, rightEdgeX + 48, topY - 28,
+                            "ДЕФЕКТ СБОРКИ: СТУПЕНЬКА НА ТОРЦЕ!", "Разнотолщинность клея/плиты → перепад +1.2 мм", "#ef4444");
+                    } else if (mountRatio > 0.8) {
+                        drawCallout(ctx, rightEdgeX + 6, topY + 10, rightEdgeX + 48, topY - 22,
+                            "ШАГ 3: «Сухой» монтаж заподлицо", "Готовность к упаковке сразу после сборки", "#10b981");
+                    }
+                }
+                ctx.restore();
+            }
+
+            document.getElementById('telemetryVal1').textContent = "1 ЭТАП СКЛЕЙКИ";
+            document.getElementById('telemetryVal2').textContent = "РАСКРОЙ НА ГАР";
+            document.getElementById('telemetryVal3').textContent = state.scene2GlueDefect ? "СТУПЕНЬКА +1.2 ММ" : "ОПТИМАЛЬНО В СЕРИЮ";
+        }
+
+        // --- СЦЕНА 4: СПОСОБ 3 — КАССЕТНАЯ ОСНОВА ЧПУ ALURANGER + ДВОЙНОЙ ПОДГИБ ---
+        function renderScene4(ctx, p, time) {
+            const cx = cw * 0.44;
+            const cy = ch * 0.54;
+            const baseW = Math.min(cw * 0.46, 390);
+            const leftX = cx - baseW * 0.55;
+
+            const hCeram = 32;
+            const hGlue = 6;
+            const hAlSkin = 7;
+            const hCore = 72;
+            const topY = cy - 45;
+
+            // Определение прогресса по 4 технологическим шагам
+            const step1Press = clamp(p / 0.22, 0, 1);
+            const step2Milling = p >= 0.25 ? clamp((p - 0.25) / 0.24, 0, 1) : 0;
+            const step3Fold = p >= 0.52 ? easeInOut((p - 0.52) / 0.22) : 0;
+            const step4Ceramic = p >= 0.76 ? easeInOut((p - 0.76) / 0.20) : 0;
+
+            // Ширина невыбранной соты (на шаге 2 фреза AluRanger выбирает правые 95px соты под двойной подгиб)
+            const milledWidth = 95 * easeInOut(step2Milling);
+            const coreWidth = baseW - milledWidth;
+            const foldCornerX = leftX + baseW - 95;
+
+            // 1. Нижний алюминиевый лист кассеты (неподвижный до точки гиба)
+            ctx.fillStyle = '#38bdf8';
+            ctx.fillRect(leftX, topY + hAlSkin + hCore, foldCornerX - leftX, hAlSkin);
+
+            // 2. Алюминиевый сотовый заполнитель (выбирается фрезой на шаге 2)
+            drawHoneycombCore(ctx, leftX, topY + hAlSkin, coreWidth, hCore, 0);
+
+            // 3. Верхний алюминиевый лист кассеты (до зоны выборки)
+            ctx.fillStyle = '#38bdf8';
+            ctx.fillRect(leftX, topY, coreWidth, hAlSkin);
+
+            // КИНЕМАТИКА ДВОЙНОГО ПОДГИБА ПОЛКИ (ШАГ 3)
+            // Сегмент 1: Торцевая стенка (длина = hCore + hAlSkin*2), сгибается вверх от нижней обшивки
+            // При выборе "Скос 60°" сгибается внутрь на 120° от горизонтали (даёт скос 60° внутрь / теневой шов)
+            const targetAngle1 = state.scene3Bevel60 ? (-115 * Math.PI / 180) : (-90 * Math.PI / 180);
+            const ang1 = lerp(0, targetAngle1, step3Fold);
+            const seg1Len = state.scene3Bevel60 ? (hCore + hAlSkin * 2) / Math.sin(115 * Math.PI / 180) : (hCore + hAlSkin * 2);
+
+            const hinge1X = foldCornerX;
+            const hinge1Y = topY + hAlSkin * 2 + hCore;
+            const hinge2X = hinge1X + Math.cos(ang1) * seg1Len;
+            const hinge2Y = hinge1Y + Math.sin(ang1) * seg1Len;
+
+            // Сегмент 2: Замковая полка двойного подгиба (загибается горизонтально влево на тыльную сторону)
+            const targetAngle2 = -Math.PI;
+            const ang2 = lerp(0, targetAngle2, step3Fold);
+            const seg2Len = 48;
+            const endX = hinge2X + Math.cos(ang2) * seg2Len;
+            const endY = hinge2Y + Math.sin(ang2) * seg2Len;
+
+            // Отрисовка кинематической полки кассеты
+            ctx.save();
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = hAlSkin;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            ctx.moveTo(hinge1X - 4, hinge1Y - hAlSkin / 2);
+            ctx.lineTo(hinge1X, hinge1Y - hAlSkin / 2);
+            ctx.lineTo(hinge2X, hinge2Y);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+            ctx.restore();
+
+            // ШАГ 2: Фрезерная головка вертикального ЧПУ-центра AluRanger
+            if (p >= 0.25 && p < 0.52) {
+                const millX = leftX + baseW - milledWidth;
+                const millY = topY + hAlSkin + hCore * 0.45;
+
+                ctx.save();
+                // Шпиндель AluRanger
+                ctx.fillStyle = '#1e293b';
+                ctx.strokeStyle = '#06b6d4';
+                ctx.lineWidth = 1.5;
+                ctx.fillRect(millX - 18, topY - 85, 36, 52);
+                ctx.strokeRect(millX - 18, topY - 85, 36, 52);
+
+                // Фреза с вращающимися зубьями
+                ctx.fillStyle = '#f59e0b';
+                ctx.fillRect(millX - 8, topY - 33, 16, hCore + 35);
+                for (let k = 0; k < 5; k++) {
+                    const fy = topY - 15 + k * 18 + ((time * 40) % 18);
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.moveTo(millX - 10, fy);
+                    ctx.lineTo(millX + 10, fy + 6);
+                    ctx.stroke();
+                }
+
+                // Стружка алюминия
+                state.particles.slice(0, 28).forEach((pt, i) => {
+                    const life = (time * 2.5 + pt.seed) % 1;
+                    ctx.fillStyle = '#38bdf8';
+                    ctx.fillRect(millX + life * 75, millY + (i - 14) * life * 4, 3, 2);
+                });
+
+                drawCallout(ctx, millX, topY - 40, millX + 55, topY - 62,
+                    "ШАГ 2: ЧПУ-центр AluRanger", "Выборка соты и подсечка кромок под гиб", "#06b6d4");
+                ctx.restore();
+            }
+
+            // ШАГ 4 (0.76..1.0): 2-е прессование — наклейка керамогранита на готовую кассету
+            if (p >= 0.72) {
+                const dropOffset = lerp(-65, 0, step4Ceramic);
+                const ceramW = hinge2X - leftX + 2;
+                const bevelDeg = state.scene3Bevel60 ? 60 : 90;
+
+                // Клеевой слой 2-го этапа прессования
+                ctx.fillStyle = '#f59e0b';
+                ctx.fillRect(leftX, topY - hGlue + dropOffset * 0.5, ceramW - 10, hGlue);
+
+                // Плита керамогранита со скосом 60° или прямым углом 90°
+                drawCeramicLayer(ctx, leftX, topY - hGlue - hCeram + dropOffset, ceramW, hCeram, bevelDeg, false);
+
+                // Визуализация лучей света и теневого шва при скосе 60° («эффект парящей плиты»)
+                if (step4Ceramic > 0.85) {
+                    if (state.scene3Bevel60) {
+                        ctx.save();
+                        // Глубокая теневая зона под скосом 60°
+                        ctx.fillStyle = 'rgba(2, 6, 23, 0.85)';
+                        ctx.beginPath();
+                        ctx.moveTo(hinge2X, topY - hCeram);
+                        ctx.lineTo(hinge2X + 65, topY - hCeram);
+                        ctx.lineTo(hinge1X + 65, hinge1Y);
+                        ctx.lineTo(hinge1X, hinge1Y);
+                        ctx.closePath();
+                        ctx.fill();
+
+                        // Дуга угла 60°
+                        ctx.strokeStyle = '#10b981';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.arc(hinge1X, hinge1Y, 34, -Math.PI, -115 * Math.PI / 180);
+                        ctx.stroke();
+                        ctx.fillStyle = '#10b981';
+                        ctx.font = '700 12px "JetBrains Mono", monospace';
+                        ctx.fillText("СКОС 60° (ТЕНЕВОЙ ШОВ)", hinge1X + 22, hinge1Y - 25);
+
+                        drawCallout(ctx, hinge2X - 8, topY - hCeram * 0.5, hinge2X + 52, topY - hCeram - 18,
+                            "Эффект «парящей плиты» (Скос 60°)", "Торец уходит в тень, крепеж 100% скрыт", "#10b981");
+                        ctx.restore();
+                    } else {
+                        drawCallout(ctx, hinge2X, topY, hinge2X + 52, topY - 25,
+                            "Исполнение 90° (Прямой торец)", "Замкнутая ЧПУ-кассета без видимых саморезов", "#38bdf8");
+                    }
+                }
+            } else if (p < 0.25) {
+                drawCallout(ctx, leftX + baseW * 0.5, topY + hCore * 0.5, leftX + baseW * 0.6, topY - 35,
+                    "ШАГ 1: Прессование №1 (Al + Сота + Al)", "Двухстадийная склейка разрывает поток", "#f59e0b");
+            } else if (p >= 0.52 && p < 0.72) {
+                drawCallout(ctx, hinge2X, hinge2Y, hinge2X + 48, hinge2Y - 28,
+                    "ШАГ 3: Двойной замковый подгиб", "Подрезка готовой кассеты на объекте невозможна!", "#ef4444");
+            }
+
+            document.getElementById('telemetryVal1').textContent = "2 ПРЕССОВАНИЯ";
+            document.getElementById('telemetryVal2').textContent = state.scene3Bevel60 ? "СКОС 60° (ТЕНЬ)" : "ТОРЕЦ 90°";
+            document.getElementById('telemetryVal3').textContent = "СТРОГО ПО КМД";
+        }
+
+        // --- СЦЕНА 5: ИНТЕРАКТИВНЫЙ ТЕРМО-СИМУЛЯТОР КТР (ЭФФЕКТ БИМЕТАЛЛИЧЕСКОЙ ПЛАСТИНЫ) ---
+        function renderScene5(ctx, p, time) {
+            // Если включено авто-термоциклирование (-15°C ... +60°C по п. 4.3 отчёта)
+            if (state.scene4AutoCycle) {
+                const wave = Math.sin(time * 1.1);
+                state.scene4Temp = 22.5 + wave * 37.5; // колеблется между -15°C и +60°C
+                const lbl = document.getElementById('tempSliderLabel');
+                if (lbl) lbl.textContent = `${Math.round(state.scene4Temp)}°C`;
+            }
+
+            const T = state.scene4Temp;
+            const T0 = 20; // температура склейки в цеху (+20°C)
+            const dT = T - T0;
+            const L = 3000; // длина панели 3000 мм
+
+            // Коэффициенты линейного теплового расширения (КТР) из Отчёта №166:
+            const alphaCeram = 6.5e-6;  // Керамогранит: (6-7)*10^-6
+            const alphaSteel = 12.0e-6; // Оцинкованная сталь: 12*10^-6
+            const alphaAlum  = 23.5e-6; // Алюминий: (23-24)*10^-6
+
+            // Разность удлинений ΔL (мм) на длине 3000 мм:
+            const dL_Steel = (alphaSteel - alphaCeram) * L * dT; // Схема А (Способ 1 и 2)
+            let dL_Alum = (alphaAlum - alphaCeram) * L * dT;     // Схема Б (Способ 3 - кассета)
+
+            // Если включены деформационные швы на тыльной стороне, напряжение и изгиб снижаются на 65%
+            const jointRelief = state.scene4ExpansionJoints ? 0.35 : 1.0;
+            const effectiveBowAlum = dL_Alum * jointRelief;
+
+            const beamW = Math.min(cw * 0.68, 560);
+            const leftX = (cw - beamW) / 2 - 20;
+            const rightX = leftX + beamW;
+
+            // Отрисовка двух сравнительных балок длиной L = 3000 мм
+            const drawBimetalBeam = (yCenter, title, sub, dL_mm, bowMm, isAlum) => {
+                ctx.save();
+                const bowPx = bowMm * 15; // масштабирование прогиба для наглядности на чертеже
+                const hBeam = 26;
+
+                // Заголовок схемы
+                ctx.font = '700 12px "Inter", sans-serif';
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText(title, leftX, yCenter - 44);
+                ctx.font = '500 11px "JetBrains Mono", monospace';
+                ctx.fillStyle = isAlum ? (Math.abs(bowMm) > 1.2 ? '#ef4444' : '#38bdf8') : '#10b981';
+                ctx.fillText(sub, leftX, yCenter - 28);
+
+                // Опорная горизонтальная ось (нейтраль 0.0 мм)
+                ctx.strokeStyle = 'rgba(148, 163, 184, 0.3)';
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.moveTo(leftX - 15, yCenter);
+                ctx.lineTo(rightX + 15, yCenter);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Изогнутая панель (квадратичная кривая Безье)
+                const midX = (leftX + rightX) / 2;
+                const ctrlY = yCenter - bowPx * 2;
+
+                // Верхний слой (Керамогранит)
+                ctx.strokeStyle = '#94a3b8';
+                ctx.lineWidth = 8;
+                ctx.beginPath();
+                ctx.moveTo(leftX, yCenter - 8);
+                ctx.quadraticCurveTo(midX, ctrlY - 8, rightX, yCenter - 8);
+                ctx.stroke();
+
+                // Клеевой и сотовый слой с эпюрой сдвиговых напряжений τ
+                ctx.strokeStyle = Math.abs(bowMm) > 1.2 ? '#ef4444' : '#f59e0b';
+                ctx.lineWidth = 10;
+                ctx.beginPath();
+                ctx.moveTo(leftX, yCenter);
+                ctx.quadraticCurveTo(midX, ctrlY, rightX, yCenter);
+                ctx.stroke();
+
+                // Нижний слой (Оцинкованная сталь или Алюминиевая кассета)
+                ctx.strokeStyle = isAlum ? '#38bdf8' : '#10b981';
+                ctx.lineWidth = 6;
+                ctx.beginPath();
+                ctx.moveTo(leftX, yCenter + 8);
+                ctx.quadraticCurveTo(midX, ctrlY + 8, rightX, yCenter + 8);
+                ctx.stroke();
+
+                // Если включены деформационные швы на тыльной стороне кассеты (Схема Б)
+                if (isAlum && state.scene4ExpansionJoints) {
+                    for (let j = 1; j <= 5; j++) {
+                        const t = j / 6;
+                        const jx = lerp(leftX, rightX, t);
+                        const jy = (1 - t) * (1 - t) * (yCenter + 8) + 2 * (1 - t) * t * (ctrlY + 8) + t * t * (yCenter + 8);
+                        ctx.fillStyle = '#070b12';
+                        ctx.fillRect(jx - 3, jy - 5, 6, 10);
+                        ctx.strokeStyle = '#10b981';
+                        ctx.lineWidth = 1.5;
+                        ctx.strokeRect(jx - 3, jy - 5, 6, 10);
+                    }
+                }
+
+                // Векторы сдвиговых напряжений в клеевом слое
+                const numVectors = 8;
+                for (let v = 1; v < numVectors; v++) {
+                    const t = v / numVectors;
+                    const vx = lerp(leftX, rightX, t);
+                    const vy = (1 - t) * (1 - t) * yCenter + 2 * (1 - t) * t * ctrlY + t * t * yCenter;
+                    const dir = (t - 0.5) * bowMm * 14;
+                    ctx.strokeStyle = Math.abs(bowMm) > 1.2 ? '#fca5a5' : '#fde68a';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(vx, vy);
+                    ctx.lineTo(vx + dir, vy);
+                    ctx.stroke();
+                }
+
+                // Выноска ΔL и прогиба справа
+                const badgeX = rightX + 22;
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+                ctx.strokeStyle = Math.abs(bowMm) > 1.2 ? '#ef4444' : '#334155';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.roundRect(badgeX, yCenter - 26, 155, 52, 6);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.font = '700 11px "JetBrains Mono", monospace';
+                ctx.fillStyle = '#e2e8f0';
+                ctx.fillText(`ΔL сдвига: ${dL_mm >= 0 ? '+' : ''}${dL_mm.toFixed(2)} мм`, badgeX + 10, yCenter - 7);
+                ctx.fillStyle = Math.abs(bowMm) > 1.2 ? '#ef4444' : '#10b981';
+                ctx.fillText(`Прогиб: ${Math.abs(bowMm).toFixed(1)} мм ${Math.abs(bowMm) > 1.2 ? '⚠ РИСК' : '✓ НОРМА'}`, badgeX + 10, yCenter + 13);
+
+                ctx.restore();
+            };
+
+            // Верхняя балка: Схема А (Способ 1 и 2 — Оцинкованная сталь)
+            drawBimetalBeam(
+                ch * 0.29,
+                "СХЕМА А (Способ 1 и 2): Керамогранит + Оцинкованная сталь (L = 3000 мм)",
+                "КТР керамики: 6,5×10⁻⁶ K⁻¹ | КТР стали: 12×10⁻⁶ K⁻¹ (разница в 1.85 раза)",
+                dL_Steel,
+                dL_Steel * 0.7,
+                false
+            );
+
+            // Нижняя балка: Схема Б (Способ 3 — Цельноалюминиевая кассета AluRanger)
+            drawBimetalBeam(
+                ch * 0.68,
+                "СХЕМА Б (Способ 3): Керамогранит + Алюминиевая кассета (L = 3000 мм)",
+                `КТР керамики: 6,5×10⁻⁶ K⁻¹ | КТР алюминия: 23,5×10⁻⁶ K⁻¹ (разница в 3.6 раза!) ${state.scene4ExpansionJoints ? '[ДЕФ. ШВЫ ВКЛЮЧЕНЫ]' : ''}`,
+                dL_Alum,
+                effectiveBowAlum,
+                true
+            );
+
+            drawDimensionLine(ctx, leftX, ch * 0.86, rightX, ch * 0.86, "ДЛИНА ПАНЕЛИ В РАСЧЕТЕ: L = 3000 мм", "#06b6d4", 0);
+
+            document.getElementById('telemetryVal1').textContent = `T = ${T >= 0 ? '+' : ''}${Math.round(T)}°C`;
+            document.getElementById('telemetryVal2').textContent = `ΔL(Al) = ${Math.abs(dL_Alum).toFixed(2)} мм`;
+            document.getElementById('telemetryVal3').textContent = Math.abs(effectiveBowAlum) > 1.2 ? "КОРОБЛЕНИЕ!" : " КОМПЕНСИРОВАНО";
+        }
+
+        // --- СЦЕНА 6: СВОДНАЯ СРАВНИТЕЛЬНАЯ МАТРИЦА 7 КРИТЕРИЕВ И ВЫВОДЫ ---
+        function renderScene6(ctx, p, time) {
+            const criteria = [
+                { name: "1. Эстетика торца", s1: 75, s2: 65, s3: 100, desc: "Способ 3 (скос 60°) даёт идеальный скрытый шов и эффект парящей плиты" },
+                { name: "2. Цикл склейки (1 этап)", s1: 90, s2: 95, s3: 45, desc: "Способ 3 требует 2 независимых прессования (сота, затем керамика)" },
+                { name: "3. Скорость производства", s1: 20, s2: 95, s3: 65, desc: "Способ 1 тормозит цех на 48 ч сушки ПУ; Способ 2 — мгновенная сухая сборка" },
+                { name: "4. Простота допусков", s1: 60, s2: 50, s3: 95, desc: "В Способе 3 точность задается ЧПУ AluRanger; Способ 2 чувствителен к клею" },
+                { name: "5. Подрезка в размер", s1: 75, s2: 100, s3: 10, desc: "Способ 2 кроится на ГАР в любой добор; Способ 3 — строго размер КМД (0%)" },
+                { name: "6. Термостойкость (КТР)", s1: 92, s2: 90, s3: 40, desc: "Способ 3 подвержен биметаллическому прогибу (ΔL до 2.5 мм на 3000 мм)" },
+                { name: "7. Экономика материалов", s1: 35, s2: 78, s3: 72, desc: "Способ 1 дорог из-за большого расхода полиуретана Puraflex 9270" }
+            ];
+
+            const leftX = 35;
+            const chartW = Math.min(cw * 0.54, 440);
+            const startY = 85;
+            const rowH = (ch - 165) / 7;
+
+            criteria.forEach((c, idx) => {
+                const y = startY + idx * rowH;
+                const isSelected = state.scene5SelectedCriterion === idx;
+
+                ctx.save();
+                if (isSelected) {
+                    ctx.fillStyle = 'rgba(6, 182, 212, 0.1)';
+                    ctx.strokeStyle = 'rgba(6, 182, 212, 0.5)';
+                    ctx.beginPath();
+                    ctx.roundRect(leftX - 10, y - 12, chartW + 20, rowH - 4, 6);
+                    ctx.fill();
+                    ctx.stroke();
+                }
+
+                ctx.font = isSelected ? '700 11px "Inter", sans-serif' : '500 11px "Inter", sans-serif';
+                ctx.fillStyle = isSelected ? '#ffffff' : '#94a3b8';
+                ctx.fillText(c.name, leftX, y + 3);
+
+                const barStartX = leftX + 155;
+                const maxBarW = chartW - 165;
+                const animFactor = clamp(p * 2.2 - idx * 0.08, 0, 1);
+
+                // Три полосы: Способ 1 (Янтарный), Способ 2 (Изумрудный), Способ 3 (Циан)
+                const bars = [
+                    { val: c.s1, col: '#f59e0b', dy: -6 },
+                    { val: c.s2, col: '#10b981', dy: 1 },
+                    { val: c.s3, col: '#06b6d4', dy: 8 }
+                ];
+                bars.forEach(b => {
+                    ctx.fillStyle = '#1e293b';
+                    ctx.fillRect(barStartX, y + b.dy, maxBarW, 5);
+                    ctx.fillStyle = b.col;
+                    ctx.fillRect(barStartX, y + b.dy, (maxBarW * b.val / 100) * animFactor, 5);
+                });
+                ctx.restore();
+            });
+
+            // Правая карточка детального вердикта и легенды на холсте
+            const cardX = leftX + chartW + 28;
+            const cardW = cw - cardX - 24;
+            if (cardW > 180) {
+                const sel = criteria[state.scene5SelectedCriterion];
+                ctx.save();
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.94)';
+                ctx.strokeStyle = '#1e293b';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.roundRect(cardX, startY - 10, cardW, ch - 170, 10);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.font = '700 12px "JetBrains Mono", monospace';
+                ctx.fillStyle = '#06b6d4';
+                ctx.fillText("ЛЕГЕНДА ТЕХНОЛОГИЙ:", cardX + 16, startY + 16);
+
+                const leg = [
+                    { label: "Способ 1: Puraflex 9270 + УШМ (Точечно)", col: "#f59e0b", val: sel.s1 },
+                    { label: "Способ 2: Al-обрамление (Базовая серия)", col: "#10b981", val: sel.s2 },
+                    { label: "Способ 3: Кассета AluRanger 60° (Премиум)", col: "#06b6d4", val: sel.s3 }
+                ];
+                leg.forEach((l, i) => {
+                    const ly = startY + 42 + i * 28;
+                    ctx.fillStyle = l.col;
+                    ctx.fillRect(cardX + 16, ly - 9, 12, 12);
+                    ctx.font = '600 11px "Inter", sans-serif';
+                    ctx.fillStyle = '#e2e8f0';
+                    ctx.fillText(`${l.label} — ${l.val}%`, cardX + 36, ly + 1);
+                });
+
+                // Активный критерий
+                ctx.strokeStyle = '#334155';
+                ctx.beginPath();
+                ctx.moveTo(cardX + 16, startY + 132);
+                ctx.lineTo(cardX + cardW - 16, startY + 132);
+                ctx.stroke();
+
+                ctx.font = '700 12px "Inter", sans-serif';
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText(sel.name, cardX + 16, startY + 156);
+
+                // Перенос строки описания
+                ctx.font = '400 11px "Inter", sans-serif';
+                ctx.fillStyle = '#cbd5e1';
+                const words = sel.desc.split(' ');
+                let line = '';
+                let ty = startY + 178;
+                words.forEach(w => {
+                    if (ctx.measureText(line + w).width > cardW - 32) {
+                        ctx.fillText(line, cardX + 16, ty);
+                        line = w + ' ';
+                        ty += 16;
+                    } else {
+                        line += w + ' ';
+                    }
+                });
+                ctx.fillText(line, cardX + 16, ty);
+
+                // Резюме директив
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.12)';
+                ctx.strokeStyle = 'rgba(16, 185, 129, 0.4)';
+                ctx.beginPath();
+                ctx.roundRect(cardX + 14, ty + 20, cardW - 28, 74, 6);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.font = '700 11px "JetBrains Mono", monospace';
+                ctx.fillStyle = '#10b981';
+                ctx.fillText("ИТОГОВЫЙ РЕГЛАМЕНТ ОТЧЁТА №166:", cardX + 24, ty + 40);
+                ctx.font = '500 10px "Inter", sans-serif';
+                ctx.fillStyle = '#e2e8f0';
+                ctx.fillText("• Серия 3000×1000 и цоколи → Способ 2", cardX + 24, ty + 58);
+                ctx.fillText("• Премиум (скос 60°) → Способ 3 (КМД + деф.швы)", cardX + 24, ty + 74);
+
+                ctx.restore();
+            }
+
+            document.getElementById('telemetryVal1').textContent = "7 КРИТЕРИЕВ";
+            document.getElementById('telemetryVal2').textContent = "СЕРИЯ: СПОСОБ 2";
+            document.getElementById('telemetryVal3').textContent = "ПРЕМИУМ: СПОСОБ 3";
+        }
+
+        // ============================================================================
+        // 6. ГЛАВНЫЙ ЦИКЛ АНИМАЦИИ (REQUESTANIMATIONFRAME)
+        // ============================================================================
+        function animateLoop(now) {
+            const dt = Math.min((now - state.lastTimestamp) / 1000, 0.1);
+            state.lastTimestamp = now;
+
+            if (state.isPlaying) {
+                state.progress += (dt * state.speed) / state.sceneDuration;
+                if (state.progress >= 1.0) {
+                    if (state.autoTour) {
+                        selectScene((state.currentScene + 1) % 6);
+                    } else {
+                        state.progress = 0;
+                    }
+                }
+            }
+
+            // Обновление UI таймлайна
+            const scrubber = document.getElementById('timelineScrubber');
+            if (scrubber) scrubber.value = Math.round(state.progress * 1000);
+
+            const curSec = (state.progress * state.sceneDuration).toFixed(1).padStart(4, '0');
+            const totSec = state.sceneDuration.toFixed(1);
+            document.getElementById('timelineTimecode').textContent = `00:${curSec} / 00:${totSec}`;
+            document.getElementById('timelinePercent').textContent = `${Math.round(state.progress * 100)}%`;
+
+            // Подсветка активного шага внутри сцены
+            const sceneData = SCENES_DATA[state.currentScene];
+            sceneData.steps.forEach((st, idx) => {
+                const btn = document.getElementById(`stepBtn-${idx}`);
+                const isActive = state.progress >= st.range[0] && state.progress <= st.range[1];
+                if (btn) {
+                    if (isActive) {
+                        btn.className = "px-2.5 py-1.5 rounded-lg text-xs font-mono border border-cyan-400 bg-cyan-500/20 text-white font-bold shadow-sm transition";
+                        document.getElementById('hudStepSubtitle').textContent = st.sub;
+                        document.getElementById('timelinePhaseLabel').textContent = st.label;
+                    } else {
+                        btn.className = "px-2.5 py-1.5 rounded-lg text-xs font-mono border border-slate-700 bg-slate-900/90 text-slate-400 hover:text-white transition";
+                    }
+                }
+            });
+
+            // Очистка и рендер активной сцены на Canvas
+            ctx.clearRect(0, 0, cw, ch);
+            const tSec = now / 1000;
+
+            switch (state.currentScene) {
+                case 0: renderScene1(ctx, state.progress, tSec); break;
+                case 1: renderScene2(ctx, state.progress, tSec); break;
+                case 2: renderScene3(ctx, state.progress, tSec); break;
+                case 3: renderScene4(ctx, state.progress, tSec); break;
+                case 4: renderScene5(ctx, state.progress, tSec); break;
+                case 5: renderScene6(ctx, state.progress, tSec); break;
+            }
+
+            requestAnimationFrame(animateLoop);
+        }
+
+        // Запуск при полной загрузке окна
+        window.onload = function () {
+            resizeCanvas();
+            selectScene(0);
+            requestAnimationFrame(animateLoop);
+        };
+    </script>
+</body>
+</html>
